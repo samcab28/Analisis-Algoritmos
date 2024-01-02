@@ -2,7 +2,9 @@ package general;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
+import java.util.Collections;
 
 
 public class Main {
@@ -19,7 +21,7 @@ public class Main {
 
         imprimirGrafo(grafo);
         dinamica(grafo);
-        //geneticos(grafo);
+        geneticos(grafo);
         backTracking(grafo);
 
     }
@@ -132,10 +134,97 @@ public class Main {
 
 
 
-    //funcion que de algoritmo geneticos
-    public static void geneticos(int[][]  grafo){
+    public static void geneticos(int[][] grafo) {
+        int poblacionSize = 50;
+        int generations = 1000;
+        ArrayList<ArrayList<Integer>> poblacion = generarPoblacionInicial(poblacionSize, grafo.length);
+        ArrayList<Integer> mejorRuta = null;
+        int mejorCosto = Integer.MAX_VALUE;
 
+        for (int generacion = 0; generacion < generations; generacion++) {
+            ArrayList<ArrayList<Integer>> nuevaPoblacion = new ArrayList<>();
+
+            for (ArrayList<Integer> ruta : poblacion) {
+                int crossoverPoint = grafo.length / 2;
+                ArrayList<Integer> hijo = crossover(ruta, poblacion.get(new Random().nextInt(poblacionSize)), crossoverPoint);
+                if (Math.random() < 0.2) {
+                    mutacion(hijo);
+                }
+                nuevaPoblacion.add(hijo);
+            }
+
+            poblacion = nuevaPoblacion;
+
+            for (ArrayList<Integer> ruta : poblacion) {
+                int costo = calcularCostoRuta(grafo, ruta);
+                if (costo < mejorCosto) {
+                    mejorCosto = costo;
+                    mejorRuta = new ArrayList<>(ruta);
+                }
+            }
+        }
+
+        System.out.println("Tour (Genetic Algorithm): " + mejorRuta);
+        System.out.println("Tour (Genetic Algorithm) Costo: " + mejorCosto);
     }
+
+    private static ArrayList<ArrayList<Integer>> generarPoblacionInicial(int size, int distanciaMatriz) {
+        ArrayList<ArrayList<Integer>> poblacion = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            ArrayList<Integer> ruta = new ArrayList<>();
+            for (int j = 0; j < distanciaMatriz; j++) {
+                ruta.add(j);
+            }
+            Collections.shuffle(ruta);
+            poblacion.add(ruta);
+        }
+        return poblacion;
+    }
+
+    private static ArrayList<Integer> crossover(ArrayList<Integer> padre1, ArrayList<Integer> padre2, int crossoverPoint) {
+        ArrayList<Integer> hijo = new ArrayList<>(padre1.subList(0, crossoverPoint));
+        for (int gen : padre2) {
+            if (!hijo.contains(gen)) {
+                hijo.add(gen);
+            }
+        }
+        return hijo;
+    }
+
+    private static void mutacion(ArrayList<Integer> ruta) {
+        int index1 = new Random().nextInt(ruta.size());
+        int index2 = new Random().nextInt(ruta.size());
+        Collections.swap(ruta, index1, index2);
+    }
+
+    private static int calcularCostoRuta(int[][] grafo, ArrayList<Integer> ruta) {
+        int costo = 0;
+        for (int i = 0; i < ruta.size() - 1; i++) {
+            costo += grafo[ruta.get(i)][ruta.get(i + 1)];
+        }
+        costo += grafo[ruta.get(ruta.size() - 1)][ruta.get(0)]; // Regreso al punto inicial
+        return costo;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
 
     private static void backTracking(int[][] grafo){
