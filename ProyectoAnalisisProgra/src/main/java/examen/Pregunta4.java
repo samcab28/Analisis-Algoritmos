@@ -1,57 +1,81 @@
 package examen;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 public class Pregunta4 {
-    public static int[] newHouse(String[] grid) {
-        if (grid == null || grid.length == 0 || grid[0].length() == 0) {
-            return new int[]{0, 0};
+    static class RectangleInfo {
+        int length;
+        int width;
+
+        RectangleInfo(int length, int width) {
+            this.length = length;
+            this.width = width;
+        }
+    }
+
+    public RectangleInfo maximalRectangle(char[][] matrix) {
+        if (matrix.length == 0) {
+            return new RectangleInfo(0, 0);
         }
 
-        int rows = grid.length;
-        int cols = grid[0].length();
-        int[][] dp = new int[rows][cols];
+        int ans = 0;
+        int[] hist = new int[matrix[0].length];
+        int rectLength = 0;
+        int rectWidth = 0;
 
-        // Inicializar la primera fila y columna del arreglo dp
-        for (int i = 0; i < rows; i++) {
-            dp[i][0] = (grid[i].charAt(0) == '.') ? 1 : 0;
-        }
+        for (char[] row : matrix) {
+            for (int i = 0; i < row.length; ++i) {
+                hist[i] = row[i] == '*' ? 0 : hist[i] + 1; // Treat '*' as '0'
+            }
+            RectangleInfo rectangleInfo = largestRectangleArea(hist);
+            int currentLength = rectangleInfo.length;
+            int currentWidth = rectangleInfo.width;
 
-        for (int j = 0; j < cols; j++) {
-            dp[0][j] = (grid[0].charAt(j) == '.') ? 1 : 0;
-        }
-
-        // Calcular el arreglo dp
-        for (int i = 1; i < rows; i++) {
-            for (int j = 1; j < cols; j++) {
-                if (grid[i].charAt(j) == '.') {
-                    dp[i][j] = Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1])) + 1;
-                }
+            if (currentLength * currentWidth > ans) {
+                ans = currentLength * currentWidth;
+                rectLength = currentLength;
+                rectWidth = currentWidth;
             }
         }
 
-        // Encontrar el máximo en el arreglo dp
-        int maxArea = 0;
-        int maxRow = 0;
-        int maxCol = 0;
+        return new RectangleInfo(rectLength, rectWidth);
+    }
 
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                if (dp[i][j] > 0) {
-                    int area = dp[i][j];
-                    if (area > maxArea) {
-                        maxArea = area;
-                        maxRow = dp[i][j];
-                        maxCol = j + 1 - dp[i][j] + 1;
-                    }
+    private RectangleInfo largestRectangleArea(int[] heights) {
+        int ans = 0;
+        int length = 0;
+        int width = 0;
+        Deque<Integer> stack = new ArrayDeque<>();
+
+        for (int i = 0; i <= heights.length; ++i) {
+            while (!stack.isEmpty() && (i == heights.length || heights[stack.peek()] > heights[i])) {
+                final int h = heights[stack.pop()];
+                final int w = stack.isEmpty() ? i : i - stack.peek() - 1;
+
+                if (h * w > ans) {
+                    ans = h * w;
+                    length = h;
+                    width = w;
                 }
             }
+            stack.push(i);
         }
 
-        return new int[]{maxRow, maxCol};
+        return new RectangleInfo(length, width);
     }
 
     public static void main(String[] args) {
-        String[] grid = {"*.....*", "......."};
-        int[] result = newHouse(grid);
-        System.out.println("(" + result[0] + "," + result[1] + ")");
+        char[][] matrix = {
+                "*.....*".toCharArray(),
+                ".......".toCharArray()
+        };
+
+        Pregunta4 solution = new Pregunta4();
+        RectangleInfo result = solution.maximalRectangle(matrix);
+
+        System.out.println("Length: " + result.length);
+        System.out.println("Width: " + result.width);
     }
 }
+
