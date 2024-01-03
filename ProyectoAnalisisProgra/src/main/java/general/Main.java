@@ -27,6 +27,7 @@ public class Main {
     }
 
 
+
     public static void dinamica(int[][] grafo) {
         int nodoInicio = 0;
         int distanciaMatriz = grafo.length;
@@ -225,7 +226,7 @@ public class Main {
 
 
 
-    
+
 
     private static void backTracking(int[][] grafo){
         visitados= new boolean[grafo.length]; //Inicializo los atributos de info

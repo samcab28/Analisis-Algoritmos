@@ -1,5 +1,6 @@
 package lab8;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class PromedioSubArreglos {
@@ -17,30 +18,20 @@ public class PromedioSubArreglos {
             // Leer el arreglo binario como una cadena
             String numBinario = scanner.nextLine();
 
-            int operaciones = minOperacionesParaPromedioUno(numBinario, n, k);
-            System.out.println(operaciones);
+            promedioSub(numBinario, k);
         }
     }
 
-    private static int minOperacionesParaPromedioUno(String numBinario, int n, int k) {
-        int operaciones = 0;
+    public static void promedioSub(String numBinario, int k) {
+        int respuesta = 0;
 
-        // Iterar sobre el arreglo binario
-        for (int i = 0; i <= n - k; i++) {
-            int sum = 0;
-
-            // Calcular la suma del subarreglo de tamaño k
-            for (int j = i; j < i + k; j++) {
-                sum += Character.getNumericValue(numBinario.charAt(j));
-            }
-
-            // Verificar si el promedio es diferente de 1
-            if ((double) sum / k != 1.0) {
-                // Realizar la operación de cambiar un bit
-                operaciones++;
-            }
+        if (k > numBinario.length()) {
+            System.out.println("Error: El valor de referencia es mayor que el tamaño del arreglo binario.");
+            return;
         }
 
-        return operaciones;
+        System.out.println(numBinario);
+
+        
     }
 }

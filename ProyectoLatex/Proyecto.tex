@@ -3,29 +3,39 @@
 \usepackage{hyperref}
 \usepackage{graphicx}
 
-\title{Proyecto del Curso: Análisis de Algoritmos}
-\author{Samir Cabrera Tabash \\ Mynell Myers}
-\date{} 
 \begin{document}
 	
-	\maketitle
-	
-	\begin{center}
-		\begin{document}
-			
-			
-			% Resto del contenido del documento
-			
-		\end{document}
+	\begin{titlepage}
+		\centering
 		
-		\textbf{Instituto Tecnológico de Costa Rica} \\
-		Curso: Análisis de Algoritmos \\
-		Profesor: Eddy Ramírez Jiménez
-	\end{center}
+		% Logo de la institución
+		\includegraphics[width=1.2\textwidth]{logoTec.png}
+		
+		% Título del proyecto
+		\vspace{2cm}
+		{\LARGE Proyecto: Travelman Sales Problem \par}
+		
+		% Información del curso y profesor
+		\vspace{1cm}
+		{\large Curso: IC-3002. Análisis de Algoritmos \par}
+		{\large Profesor: Eddy Ramírez Jiménez \par}
+		
+		% Nombre de los estudiantes
+		\vspace{1cm}
+		{\large Estudiantes: \par}
+		\begin{tabular}{c}
+			Samir Cabrera Tabash \\
+			Mynell Myers Hall \\
+		\end{tabular}
+		
+		% Fecha
+		\vspace{1cm}
+		{\large Fecha: \today \par}
+	\end{titlepage}
 	
-	\newpage
 	\tableofcontents
 	\newpage
+	
 	\section{Resumen Ejecutivo}
 	Este proyecto tiene como objetivo abordar el Problema del Viajante de Comercio (TSP) mediante la implementación y comparación de tres enfoques algorítmicos: backtracking, programación dinámica y algoritmos genéticos. La tarea se centra en encontrar el recorrido más corto que visite cada ciudad exactamente una vez y regrese al punto de inicio.
 	
@@ -56,7 +66,64 @@
 	A través de este análisis detallado, esperamos no solo encontrar soluciones eficientes para el TSP, sino también contribuir al entendimiento y desarrollo continuo en el campo del análisis de algoritmos.
 	
 	\section{Marco Teórico}
-	% Aquí va el marco teórico
+	Java es un lenguaje de programación de propósito general que se ha vuelto extremadamente popular desde su introducción en la década de 1990. Aquí tienes una descripción de los antecedentes e historia del lenguaje de programación Java:
+	
+	\textbf{Antecedentes y Desarrollo Inicial:}
+	\begin{itemize}
+		\item \textbf{Orígenes en Sun Microsystems:} Java fue desarrollado en Sun Microsystems a principios de la década de 1990 por un equipo liderado por James Gosling, Mike Sheridan y Patrick Naughton. El proyecto inicialmente se llamó "Oak", pero más tarde se renombró a Java.
+		
+		\item \textbf{Objetivos de Diseño:} Los diseñadores de Java tenían la visión de crear un lenguaje de programación que fuera portátil, orientado a objetos, robusto y seguro. La portabilidad fue una de las características clave, permitiendo que el código escrito en Java pudiera ejecutarse en cualquier máquina virtual Java (JVM) sin importar la arquitectura subyacente.
+	\end{itemize}
+	
+	\textbf{Hitos en la Historia de Java:}
+	\begin{itemize}
+		\item \textbf{1995 - Lanzamiento Oficial:} Java 1.0 fue lanzado al público en 1995. Este evento marcó el comienzo de la adopción generalizada de Java en la comunidad de desarrollo de software.
+		
+		\item \textbf{1996 - JVM en Especificación Estándar:} Sun Microsystems publicó las especificaciones para la Máquina Virtual Java (JVM), permitiendo a otros implementar sus propias versiones de la JVM.
+		
+		\item \textbf{1997 - JDK 1.1:} Java Development Kit (JDK) 1.1 fue lanzado, introduciendo mejoras significativas en el lenguaje y la plataforma, como las bibliotecas de eventos AWT y Swing.
+		
+		\item \textbf{2004 - Java 5 (J2SE 5.0):} Introdujo características importantes como anotaciones, genéricos, enumeraciones y el sistema de manejo de excepciones mejorado.
+		
+		\item \textbf{2011 - Adquisición por Oracle:} Oracle Corporation adquirió Sun Microsystems, y se convirtió en el mantenedor principal de Java.
+		
+		\item \textbf{2014 - Java 8:} Introdujo expresiones lambda, Stream API, y otras mejoras significativas en el lenguaje y la plataforma.
+		
+		\item \textbf{2017 - Java 9:} Introdujo el sistema de módulos, lo que facilita la modularidad en aplicaciones Java.
+		
+		\item \textbf{2018 - Java 11 (LTS):} Se estableció como una versión de soporte a largo plazo (LTS), marcando un cambio en el modelo de lanzamiento de Java con actualizaciones regulares y versiones LTS.
+		
+		\item \textbf{2020 - Java 14 y 15:} Introdujo mejoras en el manejo de patrones, registros y otras características.
+	\end{itemize}
+	
+	\textbf{Características y Fortalezas de Java:}
+	\begin{itemize}
+		\item \textbf{Portabilidad:} El lema "Write Once, Run Anywhere" refleja la capacidad de ejecutar el código Java en diversas plataformas sin necesidad de recompilación.
+		
+		\item \textbf{Orientación a Objetos:} Java sigue el paradigma de programación orientada a objetos, facilitando la creación de software modular y reutilizable.
+		
+		\item \textbf{Seguridad y Robustez:} Java fue diseñado con un énfasis en la seguridad y la prevención de errores en tiempo de ejecución.
+		
+		\item \textbf{Gran Ecosistema:} Java cuenta con una amplia variedad de bibliotecas y frameworks que facilitan el desarrollo de aplicaciones en diferentes dominios.
+		
+		\item \textbf{Comunidad Activa:} Java tiene una comunidad de desarrollo activa y una amplia base de usuarios.
+	\end{itemize}
+	
+	La historia de Java está marcada por su evolución continua para adaptarse a las cambiantes necesidades del desarrollo de software. Aunque ha habido desarrollos y desafíos a lo largo de los años, Java sigue siendo una opción popular para una variedad de aplicaciones, desde desarrollo web hasta sistemas embebidos y móviles.
+	
+	En el desarrollo de este proyecto, se han empleado varias clases y interfaces proporcionadas por la biblioteca estándar de Java, especialmente dentro del paquete \texttt{java.util}. A continuación, se presenta una breve descripción de algunas de las clases utilizadas:
+	
+	\begin{itemize}
+		\item \textbf{\texttt{Scanner:}} La clase \texttt{Scanner} se ha empleado para facilitar la lectura de datos de entrada desde la consola. Proporciona métodos para analizar tipos de datos primitivos y cadenas de texto.
+		
+		\item \textbf{\texttt{ArrayList:}} La clase \texttt{ArrayList} se ha utilizado para la implementación de estructuras de datos dinámicas basadas en listas. Permite el almacenamiento y manipulación eficiente de elementos de manera dinámica.
+		
+		\item \textbf{\texttt{List:}} La interfaz \texttt{List} se ha empleado como base para la manipulación de listas ordenadas. Proporciona métodos comunes para la manipulación de elementos en una secuencia.
+		
+		\item \textbf{\texttt{HashMap:}} La clase \texttt{HashMap} se ha utilizado para implementar mapas clave-valor. Es útil para asociar valores con claves y permite un acceso rápido a los datos.
+	\end{itemize}
+	
+	Estas clases y interfaces de la biblioteca \texttt{java.util} han sido fundamentales para la implementación exitosa de diversas funcionalidades en este proyecto.
 	
 	\section{Descripción de la Solución}
 	% Aquí va la descripción de la solución
@@ -99,6 +166,28 @@
 	
 	
 	\section{Bibliografía}
-	% Aquí va la bibliografía
+	\begin{thebibliography}{9}
+		\bibitem{fcc_graph_theory}
+		freeCodeCamp.org,
+		\emph{Algorithms Course - Graph Theory Tutorial from a Google Engineer},
+		9 de octubre de 2019.
+		\url{https://www.youtube.com/watch?v=09_LlHjoEiY}.
+		Accedido el 3 de enero de 2024.
+		
+		\bibitem{reducible_tsp}
+		Reducible,
+		\emph{The Traveling Salesman Problem: When Good Enough Beats Perfect},
+		26 de julio de 2022.
+		\url{https://www.youtube.com/watch?v=GiDsjIBOVoA}.
+		Accedido el 3 de enero de 2024.
+		
+		\bibitem{emami_taba_tsp}
+		M. Emami Taba,
+		\emph{Solving Traveling Salesman Problem With a Non-complete Graph},
+		Tesis de Maestría,
+		Univ. Waterloo,
+		Waterloo, Ontario, Canada,
+		2009.
+	\end{thebibliography}
 	
 \end{document}
