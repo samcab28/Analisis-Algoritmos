@@ -18,20 +18,67 @@ public class PromedioSubArreglos {
             // Leer el arreglo binario como una cadena
             String numBinario = scanner.nextLine();
 
-            promedioSub(numBinario, k);
+            // Convertir la cadena binaria en un ArrayList
+            ArrayList<Integer> listaBinaria = convertirBinarioAArrayList(numBinario);
+
+            // Calcular promedio de sublistas
+            calcularPromedioSublistas(listaBinaria, k);
         }
     }
 
-    public static void promedioSub(String numBinario, int k) {
-        int respuesta = 0;
+    // Función para convertir una cadena binaria en un ArrayList de enteros
+    private static ArrayList<Integer> convertirBinarioAArrayList(String binario) {
+        ArrayList<Integer> listaBinaria = new ArrayList<>();
 
-        if (k > numBinario.length()) {
-            System.out.println("Error: El valor de referencia es mayor que el tamaño del arreglo binario.");
-            return;
+        // Dividir la cadena binaria en elementos individuales
+        String[] elementos = binario.split(" ");
+
+        // Convertir cada elemento a entero y agregarlo al ArrayList
+        for (String elemento : elementos) {
+            int valor = Integer.parseInt(elemento);
+            listaBinaria.add(valor);
         }
 
-        System.out.println(numBinario);
+        return listaBinaria;
+    }
 
-        
+    // Función para calcular promedio de sublistas de tamaño k y realizar cambios
+    private static void calcularPromedioSublistas(ArrayList<Integer> lista, int k) {
+        int n = lista.size();
+        int cambiosRealizados = 0;
+
+        // Iterar sobre todas las sublistas de tamaño k
+        for (int i = 0; i <= n - k; i++) {
+            ArrayList<Integer> sublista = new ArrayList<>(lista.subList(i, i + k));
+
+            // Contar la cantidad de unos en la sublista
+            int unos = 0;
+            for (int valor : sublista) {
+                unos += valor;
+            }
+
+            // Calcular el promedio
+            double promedio = (double) unos / k;
+
+            // Realizar cambio si el promedio es igual a uno
+            if (promedio == 1) {
+                // Cambiar el último bit de la sublista y de la lista original
+                sublista.set(k - 1, 0);
+                lista.set(i + k - 1, 0);
+
+                // Mostrar mensaje del cambio
+                System.out.println("Cambio realizado - Promedio 1.0: Sublista: " + sublista +
+                        ", Lista Original: " + lista +
+                        ", Lista con Cambio: " + lista);
+
+                cambiosRealizados++;
+            } else {
+                // Mostrar el resultado sin cambios
+                System.out.println("Sublista: " + sublista + ", Promedio: " + promedio);
+            }
+        }
+
+        // Mostrar el número total de cambios realizados
+        System.out.println("Total de cambios realizados: " + cambiosRealizados);
     }
 }
