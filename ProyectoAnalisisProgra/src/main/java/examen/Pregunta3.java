@@ -32,32 +32,43 @@ public class Pregunta3 {
     }
 
 
-    private static void sumaInteres(int N, ArrayList<Integer> precios, int C, ArrayList<Integer> combos, int G){
-        ArrayList<Integer> combinaciones = new ArrayList<>();
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < C; j++) {
-                combinaciones.add(precios.get(i) * combos.get(j));
-            }
-        }
-        Collections.sort(combinaciones);
+    private static void sumaInteres(int N, ArrayList<Integer> precios, int C, ArrayList<Integer> combos, int G) {
+        ArrayList<Integer> combinaciones = generarCombinaciones(precios, combos);
 
-        ArrayList<Integer> tablaAcumulada = new ArrayList<>();
-        int sumaAcumulada = 0;
+        Collections.sort(combinaciones);
 
         int resultado = binarySearch(combinaciones, G);
 
         if (resultado != -1) {
-            for (int combinacion : combinaciones) {
-                if (combinacion >= resultado) {
-                    sumaAcumulada += combinacion;
-                    tablaAcumulada.add(sumaAcumulada);
-                }
-            }
-            System.out.println("resultado: " + tablaAcumulada.get(tablaAcumulada.size()-1));
+            int result = calculoSuma(combinaciones, resultado);
+            System.out.println("resultado: " + result);
         } else {
             System.out.println("No hay combinación que sea mayor o igual a " + G);
         }
     }
+
+    private static ArrayList<Integer> generarCombinaciones(ArrayList<Integer> precios, ArrayList<Integer> combos) {
+        ArrayList<Integer> combinaciones = new ArrayList<>();
+
+        for (int precio : precios) {
+            for (int combo : combos) {
+                combinaciones.add(precio * combo);
+            }
+        }
+
+        return combinaciones;
+    }
+
+    private static int calculoSuma(ArrayList<Integer> combinaciones, int target) {
+        int sumaAcumulada = 0;
+        for (int combinacion : combinaciones) {
+            if (combinacion >= target) {
+                sumaAcumulada += combinacion;
+            }
+        }
+        return sumaAcumulada;
+    }
+
     private static int binarySearch(ArrayList<Integer> combinaciones, int target) {
         int low = 0;
         int high = combinaciones.size() - 1;
