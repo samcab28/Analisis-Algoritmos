@@ -15,13 +15,11 @@ public class Pregunta3 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        int N = 3;
         ArrayList<Integer> precios = new ArrayList<>();
         precios.add(10);
         precios.add(20);
         precios.add(30);
 
-        int C = 4;
         ArrayList<Integer> combos = new ArrayList<>();
         combos.add(2);
         combos.add(3);
@@ -30,6 +28,11 @@ public class Pregunta3 {
 
         int G = 50;
 
+        sumaInteres(precios.size(), precios, combos.size(), combos, G);
+    }
+
+
+    private static void sumaInteres(int N, ArrayList<Integer> precios, int C, ArrayList<Integer> combos, int G){
         ArrayList<Integer> combinaciones = new ArrayList<>();
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < C; j++) {
@@ -44,7 +47,6 @@ public class Pregunta3 {
         int resultado = binarySearch(combinaciones, G);
 
         if (resultado != -1) {
-            System.out.println("La menor combinación es: " + resultado);
             for (int combinacion : combinaciones) {
                 if (combinacion >= resultado) {
                     sumaAcumulada += combinacion;
@@ -56,7 +58,6 @@ public class Pregunta3 {
             System.out.println("No hay combinación que sea mayor o igual a " + G);
         }
     }
-
     private static int binarySearch(ArrayList<Integer> combinaciones, int target) {
         int low = 0;
         int high = combinaciones.size() - 1;
