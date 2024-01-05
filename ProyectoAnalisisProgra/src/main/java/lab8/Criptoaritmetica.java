@@ -1,7 +1,7 @@
 package lab8;
 
 //voraz
-//Falta todas las probabilidades posibles
+
 /* 
 Mynell Myers Hall
 Complejidad: O(n!)
