@@ -60,8 +60,12 @@ public class Main {
             for(int j=1;j<5;j++){
                 List<Integer> copia= new ArrayList<>(valor);
                 int c=j;
+                boolean con=false;
                 copia=copia.stream().map(elemento -> elemento * c).collect(Collectors.toList());
                 if(copia.stream().anyMatch(numero -> numero > 9)){break;}
+                for(int i=0; i<p3.length();i++){
+                    if(copia.get(letras.indexOf(p1.charAt(i)))+copia.get(letras.indexOf(p2.charAt(i)))>9){con=true;}
+                }if(con){break;}
                 for(int i=0; i<p1.length();i++){
                     System.out.print(copia.get(letras.indexOf(p1.charAt(i))));
                 }System.out.println();
