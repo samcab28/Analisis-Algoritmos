@@ -6,56 +6,37 @@ import java.util.Scanner;
 
 public class Pregunta2 {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        int[] A = {4, 8, 12};
+        int[] P = {16, 30, 45};
 
-        ArrayList<Integer> A = new ArrayList<>(); //conjunto de paquetes
-        A.add(4);
-        A.add(8);
-        A.add(12);
-
-        ArrayList<Integer> P = new ArrayList<>(); //precios
-        P.add(16);
-        P.add(30);
-        P.add(45);
-
-        int n = scanner.nextInt();
-
-        int resultado = minCosto(n, A, P);
-        System.out.println(resultado);
+        System.out.println(minCosto(15, A, P));  // Salida esperada: 60
+        System.out.println(minCosto(9, A, P));    // Salida esperada: 45
     }
 
-    public static int minCosto(int n, ArrayList<Integer> paquetes, ArrayList<Integer> precios) {
-        int m = paquetes.size();
-        int[] dp = new int[n + 1];
-        int[] paquetesUtilizados = new int[n + 1];
-
-        Arrays.fill(dp, Integer.MAX_VALUE - 1);
-        dp[0] = 0;
-
-        for (int i = 0; i < m; i++) {
-            for (int j = paquetes.get(i); j <= n; j++) {
-                if (dp[j - paquetes.get(i)] + 1 < dp[j]) {
-                    dp[j] = dp[j - paquetes.get(i)] + 1;
-                    paquetesUtilizados[j] = i;
+    public static int minCosto ( int n, int [] A, int [] P) {
+        int [][] memo = new int [2][n *2+1];
+        Arrays.fill (memo[0] , Integer . MAX_VALUE );
+        Arrays.fill (memo[1] , Integer . MAX_VALUE );
+        memo [0][0] = 0;
+        memo [1][0] = 0;
+        int costo= Integer.MIN_VALUE;
+        int peso=Integer.MAX_VALUE;
+        for (int i = 1; i <= n*2; i++) {
+            for (int j = 0; j < A. length ; j++) {
+                if (i >= A[j] && memo [0][i - A[j]] != Integer . MAX_VALUE ) {
+                    memo [0][i] = Math . min( memo [0][i] , memo [0][i - A[j]] + P[j]);
+                    memo [1][i] = memo[1][i - A[j]] + A[j];
+                    if(costo>=0){
+                        if(costo!=memo[1][i]){return peso;}
+                        peso= Math.min(peso, memo [0][i]);
+                    }
+                    if(memo[1][i]>=n&&costo==Integer.MIN_VALUE){
+                        costo=memo[1][i];
+                        peso=memo [0][i];
+                    }
                 }
             }
         }
-
-        // Encontrar la configuración más cercana a la cantidad deseada
-        int cantidad = n;
-        while (dp[cantidad] == Integer.MAX_VALUE - 1) {
-            cantidad--;
-        }
-
-        // Reconstruir la solución para obtener la configuración más cercana
-        ArrayList<Integer> paquetesSeleccionados = new ArrayList<>();
-        while (cantidad > 0) {
-            int indicePaquete = paquetesUtilizados[cantidad];
-            paquetesSeleccionados.add(paquetes.get(indicePaquete));
-            cantidad -= paquetes.get(indicePaquete);
-        }
-
-        System.out.println("Paquetes seleccionados: " + paquetesSeleccionados);
-        return dp[n];
+        return memo [0][n*2];
     }
 }
