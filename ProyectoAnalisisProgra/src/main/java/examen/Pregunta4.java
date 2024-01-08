@@ -1,81 +1,89 @@
 package examen;
 
+/*
+estudiante: Samir Cabrera
+complejidad: O(m * n)
+ */
+
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class Pregunta4 {
-    static class RectangleInfo {
-        int length;
-        int width;
+    static class InformacionRectangulo {
+        int longitud;
+        int ancho;
 
-        RectangleInfo(int length, int width) {
-            this.length = length;
-            this.width = width;
+        InformacionRectangulo(int longitud, int ancho) {
+            this.longitud = longitud;
+            this.ancho = ancho;
         }
     }
 
-    public RectangleInfo maximalRectangle(char[][] matrix) {
-        if (matrix.length == 0) {
-            return new RectangleInfo(0, 0);
+    public InformacionRectangulo rectanguloMaximo(char[][] matriz) {
+        if (matriz.length == 0) {
+            return new InformacionRectangulo(0, 0);
         }
 
         int ans = 0;
-        int[] hist = new int[matrix[0].length];
-        int rectLength = 0;
-        int rectWidth = 0;
+        int[] hist = new int[matriz[0].length];
+        int longitudRectangulo = 0;
+        int anchoRectangulo = 0;
 
-        for (char[] row : matrix) {
-            for (int i = 0; i < row.length; ++i) {
-                hist[i] = row[i] == '*' ? 0 : hist[i] + 1; // Treat '*' as '0'
+        for (char[] fila : matriz) {
+            for (int i = 0; i < fila.length; ++i) {
+                hist[i] = fila[i] == '*' ? 0 : hist[i] + 1; // Tratar '*' como '0'
             }
-            RectangleInfo rectangleInfo = largestRectangleArea(hist);
-            int currentLength = rectangleInfo.length;
-            int currentWidth = rectangleInfo.width;
+            InformacionRectangulo informacionRectangulo = areaRectanguloMasGrande(hist);
+            int longitudActual = informacionRectangulo.longitud;
+            int anchoActual = informacionRectangulo.ancho;
 
-            if (currentLength * currentWidth > ans) {
-                ans = currentLength * currentWidth;
-                rectLength = currentLength;
-                rectWidth = currentWidth;
+            if (longitudActual * anchoActual > ans) {
+                ans = longitudActual * anchoActual;
+                longitudRectangulo = longitudActual;
+                anchoRectangulo = anchoActual;
             }
         }
 
-        return new RectangleInfo(rectLength, rectWidth);
+        return new InformacionRectangulo(longitudRectangulo, anchoRectangulo);
     }
 
-    private RectangleInfo largestRectangleArea(int[] heights) {
+    private InformacionRectangulo areaRectanguloMasGrande(int[] alturas) {
         int ans = 0;
-        int length = 0;
-        int width = 0;
-        Deque<Integer> stack = new ArrayDeque<>();
+        int longitud = 0;
+        int ancho = 0;
+        Deque<Integer> pila = new ArrayDeque<>();
 
-        for (int i = 0; i <= heights.length; ++i) {
-            while (!stack.isEmpty() && (i == heights.length || heights[stack.peek()] > heights[i])) {
-                final int h = heights[stack.pop()];
-                final int w = stack.isEmpty() ? i : i - stack.peek() - 1;
+        for (int i = 0; i <= alturas.length; ++i) {
+            while (!pila.isEmpty() && (i == alturas.length || alturas[pila.peek()] > alturas[i])) {
+                final int h = alturas[pila.pop()];
+                final int w = pila.isEmpty() ? i : i - pila.peek() - 1;
 
                 if (h * w > ans) {
                     ans = h * w;
-                    length = h;
-                    width = w;
+                    longitud = h;
+                    ancho = w;
                 }
             }
-            stack.push(i);
+            pila.push(i);
         }
 
-        return new RectangleInfo(length, width);
+        return new InformacionRectangulo(longitud, ancho);
     }
 
     public static void main(String[] args) {
-        char[][] matrix = {
-                "*.....*".toCharArray(),
-                ".......".toCharArray()
+        String[] entrada = {
+                "*.....*",
+                "......."
         };
 
-        Pregunta4 solution = new Pregunta4();
-        RectangleInfo result = solution.maximalRectangle(matrix);
+        char[][] matriz = new char[entrada.length][];
+        for (int i = 0; i < entrada.length; i++) {
+            matriz[i] = entrada[i].toCharArray();
+        }
 
-        System.out.println("Length: " + result.length);
-        System.out.println("Width: " + result.width);
+        Pregunta4 solucion = new Pregunta4();
+        InformacionRectangulo resultado = solucion.rectanguloMaximo(matriz);
+
+        System.out.println("(" + resultado.ancho + "," + resultado.longitud + ")");
     }
 }
-

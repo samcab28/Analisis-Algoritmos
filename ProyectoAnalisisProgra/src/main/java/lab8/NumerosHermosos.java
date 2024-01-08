@@ -12,18 +12,13 @@ public class NumerosHermosos {
 
     public static ArrayList<Integer> generarNumerosHermososEnRango(int inicio, int fin) {
         ArrayList<Integer> numerosHermosos = new ArrayList<>();
-
         for (int num = inicio; num <= fin; num++) {
             String numStr = Integer.toString(num);
             int longitud = numStr.length();
-
-            // Asegúrate de que la longitud del número sea par
             if (longitud % 2 == 0) {
                 int mitad = longitud / 2;
                 String primeraParte = numStr.substring(0, mitad);
                 String segundaParte = numStr.substring(mitad);
-
-                // Verifica si la suma de los dígitos en ambas partes es igual
                 if (sumarDigitos(primeraParte) == sumarDigitos(segundaParte)) {
                     numerosHermosos.add(num);
                 }
