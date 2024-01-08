@@ -28,9 +28,55 @@ public class NreinasGen {
 
         ArrayList<ArrayList<Integer>> savePoblacionInicial = generarPoblacionInicial(poblacionInicial,nReinas);
 
-        System.out.println("poblacion inicial: " + savePoblacionInicial);
+        System.out.println("Población inicial y su fitness:");
+        for (ArrayList<Integer> posicionReina : savePoblacionInicial) {
+            System.out.println("Posición de las reinas: " + posicionReina);
+            System.out.println("Fitness: " + calcularFitness(posicionReina));
+        }
+
+        System.out.println("\n\n\nimprimir las reinas de en orden de fitness");
+
+        // Ordenar la población por fitness
+        Collections.sort(savePoblacionInicial, Collections.reverseOrder(new IndividuoComparator()));
+
+        System.out.println("Población ordenada por fitness:");
+        for (ArrayList<Integer> posicionReina : savePoblacionInicial) {
+            System.out.println("Posición de las reinas: " + posicionReina);
+            System.out.println("Fitness: " + calcularFitness(posicionReina));
+        }
 
     }
+
+    static class IndividuoComparator implements java.util.Comparator<ArrayList<Integer>> {
+        @Override
+        public int compare(ArrayList<Integer> individuo1, ArrayList<Integer> individuo2) {
+            return Double.compare(calcularFitness(individuo2), calcularFitness(individuo1));
+        }
+    }
+
+
+    //funcion de calculo del fitness
+    public static double calcularFitness(ArrayList<Integer> posicionReina) {
+        int conflicts = contarConflictos(posicionReina);
+        return 1.0 / (1 + conflicts);
+    }
+
+    // Función para contar los conflictos en una posición de reinas
+    private static int contarConflictos(ArrayList<Integer> posicionReina) {
+        int conflicts = 0;
+        int size = posicionReina.size();
+        for (int i = 0; i < size; i++) {
+            for (int j = i + 1; j < size; j++) {
+                // Misma fila, misma columna o misma diagonal
+                if (posicionReina.get(i).equals(posicionReina.get(j)) || Math.abs(posicionReina.get(i) - posicionReina.get(j)) == Math.abs(i - j)) {
+                    conflicts++;
+                }
+            }
+        }
+        return conflicts;
+    }
+
+
 
     //funcion para crear el model de las primeras reinas
     public static ArrayList<Integer> inicializarPosicionRandom(int N) {
@@ -50,7 +96,6 @@ public class NreinasGen {
         for(int i = 0; i < poblacionInicial; i++){
             ArrayList<Integer> posicionReina = inicializarPosicionRandom(nReinas);
             savePoblacionInicial.add(posicionReina);
-            System.out.println("Posición de las reinas: " + posicionReina);
         }
 
         return savePoblacionInicial;
