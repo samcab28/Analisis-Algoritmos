@@ -34,47 +34,43 @@ public class NreinasGen {
         //se genera la primera poblacion inicial del array de manera aleatoria
         ArrayList<ArrayList<Integer>> savePoblacionInicial = generarPoblacionInicial(poblacionInicial, nReinas);
 
-
         for (int generacion = 1; generacion <= generaciones; generacion++) {
             System.out.println("\n\nGeneración: " + generacion);
 
             // Ordenar la población por fitness
             Collections.sort(savePoblacionInicial, Collections.reverseOrder(new IndividuoComparator()));
+
             // Array para los mejores individuos
-            ArrayList<ArrayList<Integer>> mejoresIndividuos = new ArrayList<>();
-            //conteo del fitnnes de la generacion
-            double fitnessTotal = 0.0;
-
-            //guardar los dos mejores resultados
-            mejoresIndividuos.add(savePoblacionInicial.get(savePoblacionInicial.size()-1));
-            mejoresIndividuos.add(savePoblacionInicial.get(savePoblacionInicial.size()-2));
+            ArrayList<ArrayList<Integer>> mejoresIndividuos = mejoresIndividuos(savePoblacionInicial);
 
 
-            // Imprimir la población ordenada además de hacer un recopilatorio del fitness
-            System.out.println("\nImprimir las reinas en orden de fitness");
-            for (ArrayList<Integer> posicionReina : savePoblacionInicial) {
-                System.out.println("Posición de las reinas: " + posicionReina);
-                double fitness = calcularFitness(posicionReina);
-                System.out.println("Fitness: " + fitness);
-                fitnessTotal += fitness;
-            }
-
-            // Calcular el promedio del fitness de la generación
-            double promedioFitnessGeneracion = fitnessTotal / savePoblacionInicial.size();
-            System.out.println("\nPromedio del fitness de la generación: " + promedioFitnessGeneracion);
-
-            // Impresión de los dos mejores resultados de la generación
-            System.out.println("\nImprimir los dos mejores resultados:");
-            for (ArrayList<Integer> mejorIndividuo : mejoresIndividuos) {
-                System.out.println("Posición de las reinas: " + mejorIndividuo);
-                System.out.println("Fitness: " + calcularFitness(mejorIndividuo));
-            }
+            visualizacionDatos(savePoblacionInicial,getPromedioFitness(savePoblacionInicial), mejoresIndividuos);
 
 
             siguienteGeneracion(savePoblacionInicial, mejoresIndividuos, poblacionInicial);
         }
     }
 
+
+    //metodo para la visualizacion de datos
+    public static void visualizacionDatos(ArrayList<ArrayList<Integer>> poblacionOrdenada, double fitness,  ArrayList<ArrayList<Integer>> mejoresIndividuos){
+        // Imprimir la población ordenada
+        System.out.println("\nImprimir las reinas en orden de fitness");
+        for (ArrayList<Integer> posicionReina : poblacionOrdenada) {
+            double fitnessReina = calcularFitness(posicionReina);
+            System.out.println("Posición de las reinas: " + posicionReina + " fitness de la reina: " + fitnessReina);
+        }
+
+        // Calcular el promedio del fitness de la generación
+        double promedioFitnessGeneracion = fitness;
+        System.out.println("\nPromedio del fitness de la generación: " + promedioFitnessGeneracion);
+
+        // Impresión de los dos mejores resultados de la generación
+        System.out.println("\nImprimir los dos mejores resultados:");
+        for (ArrayList<Integer> mejorIndividuo : mejoresIndividuos) {
+            System.out.println("Posición de las reinas: " + mejorIndividuo + "  Fitness: " + calcularFitness(mejorIndividuo));
+        }
+    }
 
 
     //metodo para el calculo de la siguiente generacion
@@ -97,9 +93,63 @@ public class NreinasGen {
             nuevaPoblacion.add(descendencia);
         }
 
+        System.out.println("\n\n\nsegunda generacion");
         System.out.println(nuevaPoblacion);
 
+        // Ordenar la población por fitness
+        Collections.sort(nuevaPoblacion, Collections.reverseOrder(new IndividuoComparator()));
+
+        // Array para los mejores individuos
+        ArrayList<ArrayList<Integer>> mejoresIndividuos2 = mejoresIndividuos(nuevaPoblacion);
+
+
+        visualizacionDatos(nuevaPoblacion,getPromedioFitness(nuevaPoblacion), mejoresIndividuos2);
+
     }
+
+    public static double getPromedioFitness(ArrayList<ArrayList<Integer>> poblacionGeneral){
+        //conteo del fitnnes de la generacion
+        double fitnessTotal = 0.0;
+
+        // recopilatorio del fitness
+        for (ArrayList<Integer> posicionReina : poblacionGeneral) {
+            double fitness = calcularFitness(posicionReina);
+            fitnessTotal += fitness;
+        }
+        double promedioFitnessGeneracion = fitnessTotal / poblacionGeneral.size();
+
+        return promedioFitnessGeneracion;
+    }
+
+
+// Método para obtener los mejores individuos de una población
+    public static ArrayList<ArrayList<Integer>> mejoresIndividuos(ArrayList<ArrayList<Integer>> poblacionBase) {
+        ArrayList<ArrayList<Integer>> mejoresIndividuos = new ArrayList<>();
+
+        // Obtener los últimos dos individuos de la lista (en orden ascendente)
+        ArrayList<Integer> ultimoIndividuo = poblacionBase.get(poblacionBase.size() - 1);
+
+        // Encontrar el primer individuo diferente del último
+        int indice = poblacionBase.size() - 2;
+        while (indice >= 0 && poblacionBase.get(indice).equals(ultimoIndividuo)) {
+            indice--;
+        }
+
+        // Verificar si todos son iguales
+        if (indice < 0) {
+            System.out.println("Todos los mejores individuos son iguales.");
+            return poblacionBase;  // Devolver la lista completa
+        }
+
+        // Guardar los dos mejores resultados
+        mejoresIndividuos.add(ultimoIndividuo);
+        mejoresIndividuos.add(poblacionBase.get(indice));
+
+        return mejoresIndividuos;
+    }
+
+
+
 
 
     // Método para aplicar mutación a un individuo
@@ -117,6 +167,7 @@ public class NreinasGen {
             }
         }
     }
+
 
     // Método para realizar el crossover entre dos padres
     public static ArrayList<Integer> crossover(ArrayList<Integer> padre1, ArrayList<Integer> padre2) {
@@ -136,8 +187,6 @@ public class NreinasGen {
 
         return descendencia;
     }
-
-
 
 
 
