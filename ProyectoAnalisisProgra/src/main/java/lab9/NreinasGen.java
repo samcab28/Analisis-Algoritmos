@@ -40,10 +40,33 @@ public class NreinasGen {
         Collections.sort(savePoblacionInicial, Collections.reverseOrder(new IndividuoComparator()));
 
         System.out.println("Población ordenada por fitness:");
+        ArrayList<ArrayList<Integer>> mejoresIndividuos = new ArrayList<>();
+        double fitnessTotal = 0.0;
+
+        // Guardar los dos mejores resultados y calcular el fitness total
+        for (int i = 0; i < Math.min(2, savePoblacionInicial.size()); i++) {
+            mejoresIndividuos.add(new ArrayList<>(savePoblacionInicial.get(i)));
+        }
+
         for (ArrayList<Integer> posicionReina : savePoblacionInicial) {
             System.out.println("Posición de las reinas: " + posicionReina);
-            System.out.println("Fitness: " + calcularFitness(posicionReina));
+            double fitness = calcularFitness(posicionReina);
+            System.out.println("Fitness: " + fitness);
+            fitnessTotal += fitness;
         }
+
+        // Calcular el promedio del fitness de la generación
+        double promedioFitnessGeneracion = fitnessTotal / savePoblacionInicial.size();
+        System.out.println("\nPromedio del fitness de la generación: " + promedioFitnessGeneracion);
+
+        System.out.println("\n\n\nImprimir los dos mejores resultados:");
+        for (ArrayList<Integer> mejorIndividuo : mejoresIndividuos) {
+            System.out.println("Posición de las reinas: " + mejorIndividuo);
+            System.out.println("Fitness: " + calcularFitness(mejorIndividuo));
+        }
+
+
+
 
     }
 
