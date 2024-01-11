@@ -1,6 +1,5 @@
 package lab9;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
@@ -23,17 +22,17 @@ public class NreinasGen {
         System.out.println("Digite la cantidad de reinas");
         int nReinas = scanner.nextInt(); // Cantidad de n reinas
 
-        System.out.println("Digite el tamaño de la población inicial");
-        int poblacionInicial = scanner.nextInt();
+        //System.out.println("Digite el tamaño de la población inicial");
+        int poblacionInicial = nReinas*10;
 
-        System.out.println("Digite la cantidad de generaciones");
-        int generaciones = scanner.nextInt();
+        //System.out.println("Digite la cantidad de generaciones");
+        int generaciones = 100;
 
         System.out.println("\n\nGeneración: 1");
-        //array de almacenamiento de la poblacion inicial
-        //se genera la primera poblacion inicial del array de manera aleatoria
         ArrayList<ArrayList<Integer>> savePoblacionInicial = generarPoblacionInicial(poblacionInicial, nReinas);
         ArrayList<ArrayList<Integer>> mejoresIndividuos = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> filtrado = new ArrayList<>();
+        ArrayList<ArrayList<Integer>> respuestas = new ArrayList<>();
         for (int generacion = 2; generacion <= generaciones; generacion++) {
             System.out.println("\n\nGeneración: " + generacion);
 
@@ -41,15 +40,41 @@ public class NreinasGen {
             Collections.sort(savePoblacionInicial, Collections.reverseOrder(new IndividuoComparator()));
 
             // Array para los mejores individuos
-             mejoresIndividuos = mejoresIndividuos(savePoblacionInicial);
+            mejoresIndividuos = mejoresIndividuos(savePoblacionInicial);
 
 
             savePoblacionInicial = siguienteGeneracion(savePoblacionInicial, mejoresIndividuos, poblacionInicial);
+
+
+            respuestas = filtradoRespuestas(savePoblacionInicial, respuestas);
+
         }
 
         System.out.println("\n\n\nRESULTADO FINAL");
         visualizacionDatos(savePoblacionInicial,getPromedioFitness(savePoblacionInicial), mejoresIndividuos);
+
+        System.out.println("\n\nListado de Respuestas");
+        System.out.println(respuestas);
     }
+
+
+    public static ArrayList<ArrayList<Integer>> filtradoRespuestas(ArrayList<ArrayList<Integer>> poblacion, ArrayList<ArrayList<Integer>> respuestasAnteriores) {
+        ArrayList<ArrayList<Integer>> respuestas = new ArrayList<>();
+
+        for (int i = 0; i < poblacion.size(); i++) {
+            ArrayList<Integer> individuo = poblacion.get(i);
+            double fitness = calcularFitness(individuo);
+
+            // Verificar si el individuo es una respuesta válida
+            if (fitness == 1.0 && !respuestas.contains(individuo) && !respuestasAnteriores.contains(individuo)) {
+                respuestas.add(individuo);
+            }
+        }
+
+        return respuestas;
+    }
+
+
 
 
     //metodo para la visualizacion de datos
@@ -92,18 +117,11 @@ public class NreinasGen {
             // Agregar descendencia a la nueva población
             nuevaPoblacion.add(descendencia);
         }
-
-        System.out.println("\n\n\nsegunda generacion");
-        System.out.println(nuevaPoblacion);
-
         // Ordenar la población por fitness
         Collections.sort(nuevaPoblacion, Collections.reverseOrder(new IndividuoComparator()));
 
         // Array para los mejores individuos
         ArrayList<ArrayList<Integer>> mejoresIndividuos2 = mejoresIndividuos(nuevaPoblacion);
-
-
-        visualizacionDatos(nuevaPoblacion,getPromedioFitness(nuevaPoblacion), mejoresIndividuos2);
 
         double promFitnesPasado = getPromedioFitness(poblacionInicial);
         double promFitnesActual = getPromedioFitness(nuevaPoblacion);
@@ -133,33 +151,45 @@ public class NreinasGen {
     }
 
 
-    // Método para obtener los mejores individuos de una población
     public static ArrayList<ArrayList<Integer>> mejoresIndividuos(ArrayList<ArrayList<Integer>> poblacionBase) {
         ArrayList<ArrayList<Integer>> mejoresIndividuos = new ArrayList<>();
 
-        // Obtener los últimos dos individuos de la lista (en orden ascendente)
-        ArrayList<Integer> ultimoIndividuo = poblacionBase.get(poblacionBase.size() - 1);
+        int indice = poblacionBase.size() - 1;
 
-        // Encontrar el primer individuo diferente del último
-        int indice = poblacionBase.size() - 2;
-        while (indice >= 0 && poblacionBase.get(indice).equals(ultimoIndividuo)) {
+        // Encontrar el primer individuo diferente con fitness diferente a 1.0
+        while (indice >= 0 && calcularFitness(poblacionBase.get(indice)) == 1.0) {
             indice--;
         }
 
-        // Verificar si todos son iguales
+        // Verificar si no hay individuos con fitness diferente a 1.0
         if (indice < 0) {
-            System.out.println("Todos los mejores individuos son iguales.");
-            return poblacionBase;  // Devolver la lista completa
+            mejoresIndividuos.add(poblacionBase.get(poblacionBase.size()-1));
+            mejoresIndividuos.add(poblacionBase.get(poblacionBase.size()-2));
         }
 
-        // Guardar los dos mejores resultados
-        mejoresIndividuos.add(ultimoIndividuo);
+        // Guardar el primer individuo diferente con fitness diferente a 1.0
+        mejoresIndividuos.add(poblacionBase.get(indice));
+
+        indice--;
+
+        // Encontrar el segundo individuo diferente con fitness diferente a 1.0
+        while (indice >= 0 && calcularFitness(poblacionBase.get(indice)) == 1.0) {
+            indice--;
+        }
+
+        // Verificar si no hay suficientes individuos diferentes con fitness diferente a 1.0
+        if (indice < 0) {
+            System.out.println("No hay suficientes individuos diferentes con fitness diferente a 1.0.");
+            mejoresIndividuos.clear();
+            mejoresIndividuos.add(poblacionBase.get(poblacionBase.size()-1));
+            mejoresIndividuos.add(poblacionBase.get(poblacionBase.size()-2));
+        }
+
+        // Guardar el segundo individuo diferente con fitness diferente a 1.0
         mejoresIndividuos.add(poblacionBase.get(indice));
 
         return mejoresIndividuos;
     }
-
-
 
 
 
@@ -182,23 +212,54 @@ public class NreinasGen {
 
     // Método para realizar el crossover entre dos padres
     public static ArrayList<Integer> crossover(ArrayList<Integer> padre1, ArrayList<Integer> padre2) {
+        // Asegúrate de que los arrays tengan la misma longitud
+        if (padre1.size() != padre2.size()) {
+            throw new IllegalArgumentException("Los arrays deben tener la misma longitud");
+        }
+
         int size = padre1.size();
 
         // Seleccionar un punto de cruce aleatorio
         int puntoCruce = (int) (Math.random() * (size - 1)) + 1;
 
-        // Crear la descendencia utilizando el crossover de un punto
-        ArrayList<Integer> descendencia = new ArrayList<>(padre1.subList(0, puntoCruce));
+        // Asegúrate de que el valor de puntoCruce esté dentro de los límites adecuados
+        if (puntoCruce < 1 || puntoCruce >= size) {
+            throw new IllegalArgumentException("El punto de cruce no está dentro de los límites adecuados");
+        }
 
+        // Crear la descendencia utilizando el crossover de un punto
+        ArrayList<Integer> descendencia = new ArrayList<>(Collections.nCopies(size, -1));
+
+        // Copiar la sección del padre1 al hijo
+        for (int i = 0; i < puntoCruce; i++) {
+            descendencia.set(i, padre1.get(i));
+        }
+
+        // Copiar la sección del padre2 al hijo, completando con números aleatorios
+        int currentIndex = puntoCruce;
         for (int i = 0; i < size; i++) {
             if (!descendencia.contains(padre2.get(i))) {
-                descendencia.add(padre2.get(i));
+                while (descendencia.get(currentIndex) != -1) {
+                    currentIndex = (currentIndex + 1) % size;
+                }
+                descendencia.set(currentIndex, padre2.get(i));
+                currentIndex = (currentIndex + 1) % size;
+            }
+        }
+
+        // Completar cualquier valor faltante con números aleatorios
+        for (int i = 0; i < size; i++) {
+            if (descendencia.get(i) == -1) {
+                int randomValue;
+                do {
+                    randomValue = (int) (Math.random() * size);
+                } while (descendencia.contains(randomValue));
+                descendencia.set(i, randomValue);
             }
         }
 
         return descendencia;
     }
-
 
 
 
