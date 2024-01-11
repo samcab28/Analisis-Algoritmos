@@ -29,26 +29,26 @@ public class NreinasGen {
         System.out.println("Digite la cantidad de generaciones");
         int generaciones = scanner.nextInt();
 
-
+        System.out.println("\n\nGeneración: 1");
         //array de almacenamiento de la poblacion inicial
         //se genera la primera poblacion inicial del array de manera aleatoria
         ArrayList<ArrayList<Integer>> savePoblacionInicial = generarPoblacionInicial(poblacionInicial, nReinas);
-
-        for (int generacion = 1; generacion <= generaciones; generacion++) {
+        ArrayList<ArrayList<Integer>> mejoresIndividuos = new ArrayList<>();
+        for (int generacion = 2; generacion <= generaciones; generacion++) {
             System.out.println("\n\nGeneración: " + generacion);
 
             // Ordenar la población por fitness
             Collections.sort(savePoblacionInicial, Collections.reverseOrder(new IndividuoComparator()));
 
             // Array para los mejores individuos
-            ArrayList<ArrayList<Integer>> mejoresIndividuos = mejoresIndividuos(savePoblacionInicial);
+             mejoresIndividuos = mejoresIndividuos(savePoblacionInicial);
 
 
-            visualizacionDatos(savePoblacionInicial,getPromedioFitness(savePoblacionInicial), mejoresIndividuos);
-
-
-            siguienteGeneracion(savePoblacionInicial, mejoresIndividuos, poblacionInicial);
+            savePoblacionInicial = siguienteGeneracion(savePoblacionInicial, mejoresIndividuos, poblacionInicial);
         }
+
+        System.out.println("\n\n\nRESULTADO FINAL");
+        visualizacionDatos(savePoblacionInicial,getPromedioFitness(savePoblacionInicial), mejoresIndividuos);
     }
 
 
@@ -74,7 +74,7 @@ public class NreinasGen {
 
 
     //metodo para el calculo de la siguiente generacion
-    public static void siguienteGeneracion(ArrayList<ArrayList<Integer>> poblacionInicial, ArrayList<ArrayList<Integer>> mejoresIndividuos, int poblacion){
+    public static ArrayList<ArrayList<Integer>> siguienteGeneracion(ArrayList<ArrayList<Integer>> poblacionInicial, ArrayList<ArrayList<Integer>> mejoresIndividuos, int poblacion){
         // Generar nueva población mediante crossover y mutación
         ArrayList<ArrayList<Integer>> nuevaPoblacion = new ArrayList<>();
 
@@ -105,6 +105,17 @@ public class NreinasGen {
 
         visualizacionDatos(nuevaPoblacion,getPromedioFitness(nuevaPoblacion), mejoresIndividuos2);
 
+        double promFitnesPasado = getPromedioFitness(poblacionInicial);
+        double promFitnesActual = getPromedioFitness(nuevaPoblacion);
+
+        if(promFitnesPasado > promFitnesActual){
+            System.out.println("generacion pasada mayor, se mantiene");
+            return poblacionInicial;
+        }
+
+        System.out.println("generacion actual mayor, se actualiza");
+        return nuevaPoblacion;
+
     }
 
     public static double getPromedioFitness(ArrayList<ArrayList<Integer>> poblacionGeneral){
@@ -122,7 +133,7 @@ public class NreinasGen {
     }
 
 
-// Método para obtener los mejores individuos de una población
+    // Método para obtener los mejores individuos de una población
     public static ArrayList<ArrayList<Integer>> mejoresIndividuos(ArrayList<ArrayList<Integer>> poblacionBase) {
         ArrayList<ArrayList<Integer>> mejoresIndividuos = new ArrayList<>();
 
@@ -156,8 +167,8 @@ public class NreinasGen {
     public static void aplicarMutacion(ArrayList<Integer> individuo) {
         int size = individuo.size();
 
-        // Probabilidad de mutación (ajustable según tus necesidades)
-        double probabilidadMutacion = 0.1;
+        // Probabilidad de mutación
+        double probabilidadMutacion = 0.25;
 
         for (int i = 0; i < size; i++) {
             if (Math.random() < probabilidadMutacion) {
