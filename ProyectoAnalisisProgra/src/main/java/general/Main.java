@@ -1,10 +1,12 @@
 package general;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 
 public class Main {
@@ -136,17 +138,15 @@ public class Main {
 
 
     public static void geneticos(int[][] grafo) {
-        int poblacionSize = 50;
-        int generations = 1000;
+        int poblacionSize = 50,generations = 1000, mejorFit = Integer.MAX_VALUE, costo=0;
         ArrayList<ArrayList<Integer>> poblacion = generarPoblacionInicial(poblacionSize, grafo.length);
         ArrayList<Integer> mejorRuta = null;
-        int mejorCosto = Integer.MAX_VALUE;
 
         for (int generacion = 0; generacion < generations; generacion++) {
             ArrayList<ArrayList<Integer>> nuevaPoblacion = new ArrayList<>();
 
             for (ArrayList<Integer> ruta : poblacion) {
-                int crossoverPoint = grafo.length / 2;
+                int crossoverPoint = new Random().nextInt(grafo.length-1);
                 ArrayList<Integer> hijo = crossover(ruta, poblacion.get(new Random().nextInt(poblacionSize)), crossoverPoint);
                 if (Math.random() < 0.2) {
                     mutacion(hijo);
@@ -157,16 +157,22 @@ public class Main {
             poblacion = nuevaPoblacion;
 
             for (ArrayList<Integer> ruta : poblacion) {
-                int costo = calcularCostoRuta(grafo, ruta);
-                if (costo < mejorCosto) {
-                    mejorCosto = costo;
+                int fit = fitness(grafo, ruta);
+                if (fit < mejorFit) {
+                    mejorFit=fit;
+                    costo = calcularCostoRuta(grafo, ruta);
                     mejorRuta = new ArrayList<>(ruta);
                 }
-            }
+            }if(mejorFit==0){break;}
         }
 
-        System.out.println("Tour (Genetic Algorithm): " + mejorRuta);
-        System.out.println("Tour (Genetic Algorithm) Costo: " + mejorCosto);
+        System.out.print("Genetico: ");
+        if(mejorFit==0&&mejorRuta!=null){
+            for(int i:mejorRuta){ //impresion
+                System.out.print((i+1)+",");
+            }
+            System.out.println("1 Costo: "+costo);
+        }else{System.out.println("--- Costo: "+costo);}
     }
 
     private static ArrayList<ArrayList<Integer>> generarPoblacionInicial(int size, int distanciaMatriz) {
@@ -198,6 +204,18 @@ public class Main {
         Collections.swap(ruta, index1, index2);
     }
 
+    private static int fitness(int[][] grafo, ArrayList<Integer> ruta) {
+        int fallas=0;
+        if(ruta.get(0)!=0){fallas++;}
+        long repetidos= ruta.stream().collect(Collectors.groupingBy(Integer::intValue, Collectors.counting())).values().stream().filter(count -> count > 1).mapToLong(count -> count - 1).sum();
+        if(repetidos>0){fallas++;}
+        for (int i = 0; i < ruta.size() - 1; i++) {
+            if(grafo[ruta.get(i)][ruta.get(i + 1)]==0){
+                fallas++;
+            }
+        }
+        return fallas;
+    }
     private static int calcularCostoRuta(int[][] grafo, ArrayList<Integer> ruta) {
         int costo = 0;
         for (int i = 0; i < ruta.size() - 1; i++) {
@@ -233,20 +251,25 @@ public class Main {
         rutaBT= new ArrayList<>();
         backTracking_aux(grafo,0,0,new ArrayList<>()); //Generacion de ruta
         System.out.print("Backtracking: ");
-        for(int i:rutaBT){ //impresion
-            System.out.print((i+1)+",");
-        }
-        System.out.println("1 Costo: "+movContBT);
+        if(movContBT!=0&&!rutaBT.isEmpty()){
+            for(int i:rutaBT){ //impresion
+                System.out.print((i+1)+",");
+            }
+            System.out.println("1 Costo: "+movContBT);
+        }else{System.out.println("--- Costo: "+movContBT);}
     }
     private static void backTracking_aux(int[][] grafo, int vertice, int movCont, ArrayList<Integer>ruta){
         if(visitados[0]&&vertice==0){
-            rutaBT= ruta;
-            movContBT= movCont;
-            return;
+            boolean todosTrue = true;
+            for (boolean valor : visitados) {
+                if(!valor){todosTrue=false;break;}
+            }if(todosTrue){
+                rutaBT= ruta;
+                movContBT= movCont;
+                return;
+            }
         }
-        if(visitados[vertice]){
-            return;
-        }
+        if(visitados[vertice]){return;}
         ruta.add(vertice);
         visitados[vertice]= true; //Marcar como visitado
         for(int i=0;i<grafo[vertice].length;i++){
