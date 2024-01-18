@@ -21,7 +21,6 @@ public class Main {
         // Crear una matriz de adyacencia para representar el grafo
         int[][] grafo = construirGrafo(scanner, E, V);
 
-        imprimirGrafo(grafo);
         dinamica(grafo);
         geneticos(grafo);
         backTracking(grafo);
@@ -37,8 +36,13 @@ public class Main {
         int END_STATE = (1 << distanciaMatriz) - 1;
         Double[][] memo = new Double[distanciaMatriz][1 << distanciaMatriz];
 
+        // Inicializar memo con valores "infinitos"
+        for (int i = 0; i < distanciaMatriz; i++) {
+            Arrays.fill(memo[i], Double.POSITIVE_INFINITY);
+        }
+
         for (int end = 0; end < distanciaMatriz; end++) {
-            if (end == nodoInicio) continue;
+            if (end == nodoInicio || grafo[nodoInicio][end] == 0) continue;
             memo[end][(1 << nodoInicio) | (1 << end)] = (double) grafo[nodoInicio][end];
         }
 
@@ -51,7 +55,14 @@ public class Main {
                     double minDist = Double.POSITIVE_INFINITY;
                     for (int end = 0; end < distanciaMatriz; end++) {
                         if (end == nodoInicio || end == next || notIn(end, subset)) continue;
+
+                        // Ajustar para manejar conexiones faltantes
                         double newDistance = memo[end][subsetWithoutNext] + grafo[end][next];
+                        if (grafo[end][next] == 0) {
+                            // Si la conexión no está presente, ignorar esta opción
+                            continue;
+                        }
+
                         if (newDistance < minDist) {
                             minDist = newDistance;
                         }
@@ -62,21 +73,30 @@ public class Main {
         }
 
         double minTourCost = Double.POSITIVE_INFINITY;
+        int bestSubset = 0;
+
+        // Encontrar la mejor solución entre todas las combinaciones
         for (int i = 0; i < distanciaMatriz; i++) {
-            if (i == nodoInicio) continue;
+            if (i == nodoInicio || grafo[i][nodoInicio] == 0) continue;
             double tourCost = memo[i][END_STATE] + grafo[i][nodoInicio];
             if (tourCost < minTourCost) {
                 minTourCost = tourCost;
+                bestSubset = END_STATE;
             }
+        }
+
+        if (minTourCost == Double.POSITIVE_INFINITY) {
+            System.out.println("No hay recorrido válido en el grafo incompleto.");
+            return;
         }
 
         System.out.println("Tour (Dynamic Programming) Costo: " + minTourCost);
 
-        // dar la ruta desde la memo
+        // Dar la ruta desde la memo
         int lastIndex = nodoInicio;
-        int state = END_STATE;
+        int state = bestSubset;
 
-        ArrayList<Integer> tour = new ArrayList<>();
+        List<Integer> tour = new ArrayList<>();
         tour.add(nodoInicio + 1);  // Ajuste para iniciar desde 1
 
         for (int i = 1; i < distanciaMatriz; i++) {
@@ -102,17 +122,12 @@ public class Main {
         System.out.println("Tour (Dynamic Programming): " + tour);
     }
 
-
-
-
-    //almacenamiento combinaciones
     private static List<Integer> combinations(int r, int n) {
         List<Integer> subsets = new ArrayList<>();
         combinations(0, 0, r, n, subsets);
         return subsets;
     }
 
-    //posibles combinaciones restantes
     private static void combinations(int set, int at, int r, int n, List<Integer> subsets) {
         int elementsLeftToPick = n - at;
         if (elementsLeftToPick < r) return;
@@ -128,10 +143,12 @@ public class Main {
         }
     }
 
-    //funcion de comprobacion
     private static boolean notIn(int elem, int subset) {
         return ((1 << elem) & subset) == 0;
     }
+
+
+
 
 
 
@@ -282,6 +299,7 @@ public class Main {
 
 
 
+
     // Función para construir la matriz de adyacencia del grafo
     private static int[][] construirGrafo(Scanner scanner, int E, int V) {
         int[][] grafo = new int[V][V];
@@ -293,6 +311,23 @@ public class Main {
             // Agregar la conexión al grafo
             grafo[nodoOrigen - 1][nodoDestino - 1] = costoViaje;
             grafo[nodoDestino - 1][nodoOrigen - 1] = costoViaje; // Considerando un grafo no dirigido
+        }
+
+        // Verificar si el grafo es completo
+        if (esGrafoCompleto(grafo)) {
+            System.out.println("El grafo es completo.");
+            imprimirGrafo(grafo);
+        } else {
+            imprimirGrafo(grafo);
+            /*
+            System.out.println("El grafo no es completo.");
+            System.out.println("grafo original");
+            imprimirGrafo(grafo);
+
+            System.out.println("\n\ngrafo modificado");
+            grafo = completarGrafoIncompleto(grafo);
+            imprimirGrafo(grafo);*/
+
         }
 
         return grafo;
@@ -310,6 +345,62 @@ public class Main {
             System.out.println();
         }
     }
+
+    // Función para verificar si el grafo es completo
+    private static boolean esGrafoCompleto(int[][] grafo) {
+        for (int i = 0; i < grafo.length; i++) {
+            for (int j = 0; j < grafo[i].length; j++) {
+                if (i != j && grafo[i][j] == 0) {
+                    return false; // Si hay al menos una conexión faltante, el grafo no es completo
+                }
+            }
+        }
+        return true;
+    }
+
+    // Función para completar el grafo si no es completo
+    private static int[][] completarGrafoIncompleto(int[][] grafo) {
+        int V = grafo.length;
+
+        // Verificar si el grafo es completo
+        if (!esGrafoCompleto(grafo)) {
+            // Completar las conexiones faltantes con las distancias disponibles
+            for (int i = 0; i < V; i++) {
+                for (int j = 0; j < V; j++) {
+                    if (i != j && grafo[i][j] == 0) {
+                        // Utilizar la distancia ya almacenada entre i y j en alguna dirección
+                        if (grafo[j][i] != 0) {
+                            grafo[i][j] = grafo[j][i];
+                        } else {
+                            // Asignar un valor predeterminado o utilizar la distancia óptima si es posible
+                            grafo[i][j] = encontrarDistanciaMinima(grafo, i, j);
+                        }
+                    }
+                }
+            }
+        }
+
+        return grafo;
+    }
+
+
+
+    // Función para encontrar la distancia mínima entre dos nodos en el grafo
+    private static int encontrarDistanciaMinima(int[][] grafo, int nodoOrigen, int nodoDestino) {
+        int minDistancia = Integer.MAX_VALUE;
+
+        for (int k = 0; k < grafo.length; k++) {
+            if (grafo[nodoOrigen][k] != 0 && grafo[k][nodoDestino] != 0) {
+                int distanciaTotal = grafo[nodoOrigen][k] + grafo[k][nodoDestino];
+                if (distanciaTotal < minDistancia) {
+                    minDistancia = distanciaTotal;
+                }
+            }
+        }
+
+        return minDistancia;
+    }
+
 
 
 

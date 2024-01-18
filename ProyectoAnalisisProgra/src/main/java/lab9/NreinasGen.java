@@ -5,10 +5,12 @@ estudiante: Samir Cabrera
 Solucion de n-Reinas con algoritmos geneticos
 
  */
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Scanner;
-public class NreinasGen {
+class NreinasGen {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -16,21 +18,38 @@ public class NreinasGen {
         System.out.println("Digite la cantidad de reinas");
         int nReinas = scanner.nextInt(); // Cantidad de n reinas
 
-        int poblacionInicial = nReinas*10;
+        System.out.println("digite uno para visualizar y cero para no");
+        int  visualizacion = scanner.nextInt();
+
+        int poblacionInicial;
+        if(nReinas > 7){
+            poblacionInicial = 50;
+        }
+        else{
+            poblacionInicial = nReinas * nReinas;
+        }
 
         //cantidad de veces que puede repetir la elite
-        int N2 = 15
-                ;
+        int N2;
+        if(nReinas > 5){
+            N2 = 20;
+        }
+        else{
+            N2 = nReinas * nReinas;
+        }
+
         ArrayList<ArrayList<Integer>> eliteAnterior = new ArrayList<>();
         int generacionesSinCambio = 0;
-
-        //System.out.println("Digite la cantidad de generaciones");
         int generaciones = 100;
 
         System.out.println("\n\nGeneración: 1");
         ArrayList<ArrayList<Integer>> savePoblacionInicial = generarPoblacionInicial(poblacionInicial, nReinas);
         ArrayList<ArrayList<Integer>> mejoresIndividuos = new ArrayList<>();
-        ArrayList<ArrayList<Integer>> respuestas = new ArrayList<>();
+
+        if(visualizacion == 1){
+            Collections.sort(savePoblacionInicial, Collections.reverseOrder(new IndividuoComparator()));
+            visualizacionDatos(savePoblacionInicial, getPromedioFitness(savePoblacionInicial), mejoresIndividuos(savePoblacionInicial));
+        }
 
         for (int generacion = 2; generacion <= generaciones; generacion++) {
             System.out.println("\n\nGeneración: " + generacion);
@@ -57,41 +76,14 @@ public class NreinasGen {
 
             // Array para los mejores individuos
             mejoresIndividuos = mejoresIndividuos(savePoblacionInicial);
-
-
-            savePoblacionInicial = siguienteGeneracion(savePoblacionInicial, mejoresIndividuos, poblacionInicial);
-
-
-            respuestas = filtradoRespuestas(savePoblacionInicial, respuestas);
+            savePoblacionInicial = siguienteGeneracion(savePoblacionInicial, mejoresIndividuos, poblacionInicial,visualizacion);
 
         }
         System.out.println("\n\n\nRESULTADO FINAL");
         visualizacionDatos(savePoblacionInicial,getPromedioFitness(savePoblacionInicial), mejoresIndividuos);
-        respuestas = filtradoRespuestas(savePoblacionInicial, respuestas);
-        System.out.println("\n\nListado de Respuestas");
-        System.out.println(respuestas);
     }
 
 
-    //funcion para filtrar respuestas
-    public static ArrayList<ArrayList<Integer>> filtradoRespuestas(ArrayList<ArrayList<Integer>> poblacion, ArrayList<ArrayList<Integer>> respuestasAnteriores) {
-        ArrayList<ArrayList<Integer>> respuestas = new ArrayList<>();
-
-        for (int i = 0; i < poblacion.size(); i++) {
-            ArrayList<Integer> individuo = poblacion.get(i);
-            double fitness = calcularFitness(individuo);
-
-            // Utilizar una pequeña tolerancia para comparaciones de punto flotante
-            double tolerancia = 1e-10;
-
-            // Verificar si el individuo es una respuesta válida
-            if (Math.abs(fitness - 1.0) < tolerancia && !respuestas.contains(individuo) && !respuestasAnteriores.contains(individuo)) {
-                respuestas.add(individuo);
-            }
-        }
-
-        return respuestas;
-    }
 
     //metodo para la visualizacion de datos
     public static void visualizacionDatos(ArrayList<ArrayList<Integer>> poblacionOrdenada, double fitness,  ArrayList<ArrayList<Integer>> mejoresIndividuos){
@@ -107,40 +99,61 @@ public class NreinasGen {
         System.out.println("\nPromedio del fitness de la generación: " + promedioFitnessGeneracion);
 
         // Impresión de los dos mejores resultados de la generación
-        System.out.println("\nImprimir los dos mejores resultados:");
+        System.out.println("\nImprimir los dos mejores resultados con promedio fitness diferente a 1.0:");
         for (ArrayList<Integer> mejorIndividuo : mejoresIndividuos) {
             System.out.println("Posición de las reinas: " + mejorIndividuo + "  Fitness: " + calcularFitness(mejorIndividuo));
         }
+
+        //impresion de los resultados correctos
+        ArrayList<ArrayList<Integer>> respuestas = new ArrayList<>();
+        System.out.println("impresion de los resultados con Correctos");
+        for (ArrayList<Integer> i : poblacionOrdenada) {
+            double fitnessReina = calcularFitness(i);
+            if (fitnessReina == 1.0 && !respuestas.contains(i)) {
+                respuestas.add(i);
+            }
+        }
+        if(respuestas.isEmpty()){
+            System.out.println("No se encontraron resultados correctos");
+        }
+        else{
+            for(ArrayList<Integer> i:respuestas){
+                System.out.println("Posicion de reina: " + i + " fitness: " + calcularFitness(i));
+            }
+        }
+
+
     }
 
     //metodo para el calculo de la siguiente generacion
-    public static ArrayList<ArrayList<Integer>> siguienteGeneracion(ArrayList<ArrayList<Integer>> poblacionInicial, ArrayList<ArrayList<Integer>> mejoresIndividuos, int poblacion){
+    public static ArrayList<ArrayList<Integer>> siguienteGeneracion(ArrayList<ArrayList<Integer>> poblacionInicial, ArrayList<ArrayList<Integer>> mejoresIndividuos,
+                                                                    int poblacion, int visualizacion){
         // Generar nueva población mediante crossover y mutación
         ArrayList<ArrayList<Integer>> nuevaPoblacion = new ArrayList<>();
 
+        //seleccion de padres para el crossover
+        ArrayList<Integer> padre1 = mejoresIndividuos.get(0);
+        ArrayList<Integer> padre2 = mejoresIndividuos.get(1);
         for (int i = 0; i < poblacion; i += 1) {
-            // Seleccionar dos padres para el crossover
-            ArrayList<Integer> padre1 = mejoresIndividuos.get(i % 2);
-            ArrayList<Integer> padre2 = mejoresIndividuos.get((i + 1) % 2);
-
             // Realizar crossover
             ArrayList<Integer> descendencia = crossover(padre1, padre2);
 
-            aplicarMutacion(descendencia);
-            aplicarMutacion(descendencia);
+            //generar mutacion
+            nuevaPoblacion.add(aplicarMutacion(descendencia));
 
             // Agregar descendencia a la nueva población
             nuevaPoblacion.add(descendencia);
         }
+
         // Ordenar la población por fitness
         Collections.sort(nuevaPoblacion, Collections.reverseOrder(new IndividuoComparator()));
-
-        // Array para los mejores individuos
-        ArrayList<ArrayList<Integer>> mejoresIndividuos2 = mejoresIndividuos(nuevaPoblacion);
 
         double promFitnesPasado = getPromedioFitness(poblacionInicial);
         double promFitnesActual = getPromedioFitness(nuevaPoblacion);
 
+        if(visualizacion == 1){
+            visualizacionDatos(nuevaPoblacion, promFitnesActual, mejoresIndividuos(nuevaPoblacion));
+        }
         if(promFitnesPasado > promFitnesActual){
             System.out.println("generacion pasada mayor, se mantiene");
             return poblacionInicial;
@@ -211,15 +224,15 @@ public class NreinasGen {
     public static ArrayList<Integer> aplicarMutacion(ArrayList<Integer> individuo) {
         int size = individuo.size();
 
-        // Seleccionar dos reinas aleatoriamente
-        int reina1 = (int) (Math.random() * size);
-        int reina2 = (int) (Math.random() * size);
+        // Probabilidad de mutación
+        double probabilidadMutacion = 0.10;
 
-        // Verificar si se aplica la mutación (25% de probabilidad)
-        if (Math.random() <= 0.25) {
-            int temp = individuo.get(reina1);
-            individuo.set(reina1, individuo.get(reina2));
-            individuo.set(reina2, temp);
+        for (int i = 0; i < size; i++) {
+            if (Math.random() < probabilidadMutacion) {
+                // Cambiar aleatoriamente la posición de la reina
+                int nuevaPosicion = (int) (Math.random() * size);
+                individuo.set(i, nuevaPosicion);
+            }
         }
 
         return individuo;
@@ -306,7 +319,7 @@ public class NreinasGen {
             }
         }
         return conflicts;
-    }*&
+    }
 
     //funcion para crear el model de las primeras reinas
     public static ArrayList<Integer> inicializarPosicionRandom(int N) {
