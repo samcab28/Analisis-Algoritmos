@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 
 public class Main {
-    public static boolean[] visitados;
     public static ArrayList<Integer> rutaBT;
     public static int movContBT;
 
@@ -21,11 +20,13 @@ public class Main {
         // Crear una matriz de adyacencia para representar el grafo
         int[][] grafo = construirGrafo(scanner, E, V);
 
+        imprimirGrafo(grafo);
         dinamica(grafo);
         geneticos(grafo);
         backTracking(grafo);
 
     }
+
 
 
     public static void dinamica(int[][] grafo) {
@@ -156,8 +157,6 @@ public class Main {
 
 
 
-
-
     public static void geneticos(int[][] grafo) {
         int poblacionSize = 50,generations = 1000, mejorFit = Integer.MAX_VALUE, costo=0;
         ArrayList<ArrayList<Integer>> poblacion = generarPoblacionInicial(poblacionSize, grafo.length);
@@ -178,13 +177,13 @@ public class Main {
             poblacion = nuevaPoblacion;
 
             for (ArrayList<Integer> ruta : poblacion) {
-                int fit = fitness(grafo, ruta);
-                if (fit < mejorFit) {
+                int fit = fitness(grafo, ruta), ncosto = calcularCostoRuta(grafo, ruta);
+                if (fit < mejorFit||(fit == 0&&ncosto<=costo)) {
                     mejorFit=fit;
                     costo = calcularCostoRuta(grafo, ruta);
                     mejorRuta = new ArrayList<>(ruta);
                 }
-            }if(mejorFit==0){break;}
+            }
         }
 
         System.out.print("Genetico: ");
@@ -267,39 +266,53 @@ public class Main {
 
 
 
-    private static void backTracking(int[][] grafo){
-        visitados= new boolean[grafo.length]; //Inicializo los atributos de info
-        rutaBT= new ArrayList<>();
-        backTracking_aux(grafo,0,0,new ArrayList<>()); //Generacion de ruta
-        System.out.print("Backtracking: ");
-        if(movContBT!=0&&!rutaBT.isEmpty()){
-            for(int i:rutaBT){ //impresion
-                System.out.print((i+1)+",");
-            }
-            System.out.println("1 Costo: "+movContBT);
-        }else{System.out.println("--- Costo: "+movContBT);}
-    }
-    private static void backTracking_aux(int[][] grafo, int vertice, int movCont, ArrayList<Integer>ruta){
-        if(visitados[0]&&vertice==0){
-            boolean todosTrue = true;
-            for (boolean valor : visitados) {
-                if(!valor){todosTrue=false;break;}
-            }if(todosTrue){
-                rutaBT= ruta;
-                movContBT= movCont;
-                return;
-            }
+    private static void backTracking(int[][] grafo) {
+        ArrayList<Boolean> visitados = new ArrayList<>();
+        for (int i = 0; i < grafo.length; i++) {
+            visitados.add(false);
         }
-        if(visitados[vertice]){return;}
-        ruta.add(vertice);
-        visitados[vertice]= true; //Marcar como visitado
-        for(int i=0;i<grafo[vertice].length;i++){
-            if(grafo[vertice][i]!=0){
-                backTracking_aux(grafo,i,movCont+grafo[vertice][i],ruta); //Expansion en todos los vecinos
+
+        rutaBT = new ArrayList<>();
+        movContBT = Integer.MAX_VALUE;
+        backTracking_aux(grafo, 0, 0, new ArrayList<>(), visitados);
+        
+        System.out.print("Backtracking: ");
+        if (movContBT != Integer.MAX_VALUE && !rutaBT.isEmpty()) {
+            for (int i : rutaBT) {
+                System.out.print((i + 1) + ",");
             }
+            System.out.println("1 Costo: " + movContBT);
+        } else {
+            System.out.println("--- Costo: " + movContBT);
         }
     }
 
+    private static void backTracking_aux(int[][] grafo, int vertice, int movCont, ArrayList<Integer> ruta, ArrayList<Boolean> visitados) {
+        if (visitados.get(0) && vertice == 0) {
+            boolean todosTrue = true;
+            for (boolean valor : visitados) {
+                if (!valor) {
+                    todosTrue = false;
+                    break;
+                }
+            }
+            if (todosTrue) {
+                if (movCont < movContBT) {
+                    rutaBT = new ArrayList<>(ruta);
+                    movContBT = movCont;
+                    return;
+                }
+            }
+        }
+        if (visitados.get(vertice)) {return;}
+        ruta.add(vertice);
+        visitados.set(vertice, true);
+        for (int i = 0; i < grafo.length; i++) {
+            if (grafo[vertice][i] != 0) {
+                backTracking_aux(grafo, i, movCont + grafo[vertice][i], new ArrayList<>(ruta), new ArrayList<>(visitados));
+            }
+        }
+    }
 
 
 
@@ -404,7 +417,6 @@ public class Main {
 
         return minDistancia;
     }
-
 
 
 
