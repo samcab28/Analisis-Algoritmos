@@ -28,7 +28,6 @@ public class Main {
     }
 
 
-
     public static void dinamica(int[][] grafo) {
         int nodoInicio = 0;
         int distanciaMatriz = grafo.length;
@@ -56,15 +55,12 @@ public class Main {
                     for (int end = 0; end < distanciaMatriz; end++) {
                         if (end == nodoInicio || end == next || notIn(end, subset)) continue;
 
-                        // Ajustar para manejar conexiones faltantes
-                        double newDistance = memo[end][subsetWithoutNext] + grafo[end][next];
-                        if (grafo[end][next] == 0) {
-                            // Si la conexión no está presente, ignorar esta opción
-                            continue;
-                        }
-
-                        if (newDistance < minDist) {
-                            minDist = newDistance;
+                        // Ajustar para manejar conexiones faltantes y distancias cero
+                        if (grafo[end][next] > 0) {
+                            double newDistance = memo[end][subsetWithoutNext] + grafo[end][next];
+                            if (newDistance < minDist) {
+                                minDist = newDistance;
+                            }
                         }
                     }
                     memo[next][subset] = minDist;
@@ -90,7 +86,6 @@ public class Main {
             return;
         }
 
-        System.out.println("Tour (Dynamic Programming) Costo: " + minTourCost);
 
         // Dar la ruta desde la memo
         int lastIndex = nodoInicio;
@@ -105,11 +100,21 @@ public class Main {
 
             for (int j = 0; j < distanciaMatriz; j++) {
                 if (j == nodoInicio || notIn(j, state)) continue;
-                double newDist = memo[j][state] + grafo[j][lastIndex];
-                if (newDist < bestDist) {
-                    bestIndex = j;
-                    bestDist = newDist;
+
+                // Ajustar para manejar distancias cero
+                if (grafo[j][lastIndex] > 0) {
+                    double newDist = memo[j][state] + grafo[j][lastIndex];
+                    if (newDist < bestDist) {
+                        bestIndex = j;
+                        bestDist = newDist;
+                    }
                 }
+            }
+
+            if (bestIndex == -1) {
+                // No se encontró una conexión válida, el grafo es incompleto
+                System.out.println("El grafo es incompleto, no se puede completar un recorrido válido.");
+                return;
             }
 
             tour.add(bestIndex + 1);  // Ajuste para iniciar desde 1
@@ -119,7 +124,7 @@ public class Main {
 
         tour.add(nodoInicio + 1);  // Ajuste para iniciar desde 1
 
-        System.out.println("Tour (Dynamic Programming): " + tour);
+        System.out.println("Dinamica: " + tour + " Costo: " + minTourCost);
     }
 
     private static List<Integer> combinations(int r, int n) {
@@ -146,7 +151,6 @@ public class Main {
     private static boolean notIn(int elem, int subset) {
         return ((1 << elem) & subset) == 0;
     }
-
 
 
 
