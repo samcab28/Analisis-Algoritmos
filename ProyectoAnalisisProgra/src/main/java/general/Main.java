@@ -233,7 +233,7 @@ public class Main {
             if(grafo[ruta.get(i)][ruta.get(i + 1)]==0){
                 fallas++;
             }
-        }if(grafo[ruta.size() - 1][0]==0){fallas++;}
+        }if(grafo[ruta.get(ruta.size() - 1)][0]==0){fallas++;}
         return fallas;
     }
     private static int calcularCostoRuta(int[][] grafo, ArrayList<Integer> ruta) {
