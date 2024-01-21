@@ -13,7 +13,7 @@ public class PromedioSubArreglos {
             int n = scanner.nextInt(); // tamaño de arreglo binario
             int k = scanner.nextInt(); // valor referencia
 
-            scanner.nextLine(); // Consumir el salto de línea después de leer k
+            scanner.nextLine();
 
             // Leer el arreglo binario como una cadena
             String numBinario = scanner.nextLine();
