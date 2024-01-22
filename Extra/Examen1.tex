@@ -100,6 +100,162 @@ T(n) = \Theta(n^{\log_6 36} \cdot \log^0 n)
 T(n) = \Theta(n^2)
 \]
 
+\section*{Pregunta 2}
+\begin{lstlisting}[style=customcpp]
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<int> intercambio(vector<int>& V, int k) {
+    vector<int> res;
+    int c = 0;
+
+    for (int i = 0; i < V.size(); ++i) {
+        if (i < k) {res.push_back(V[i]);
+        } else {
+            result.insert(res.begin() + c, V[i]);
+            c++;
+        }
+    }
+    return result;
+}
+\end{lstlisting}
+
+\section*{Pregunta 3}
+\begin{lstlisting}[style=customcpp]
+#include <iostream>
+#include <unordered_map>
+
+using namespace std;
+
+unordered_map<int, long long> memo;
+
+long long tribonacci(int n) {
+    if (n <= 2) {return n;}
+    if (memo.find(n) != memo.end()) {return memo[n];}
+
+    long long res = tribonacci(n - 1) + tribonacci(n - 2) + tribonacci(n - 3);
+    memo[n] = res;
+    return res;
+}
+\end{lstlisting}
+
+\section*{Pregunta 4}
+
+Enfocándome en el caso en donde el bar se tiene que trasladar (peor caso). \\
+* Si se supera la capacidad del bar, la cantidad de personas que debe trasladarse es \(O(C)\) — todos los clientes en el bar más el cliente nuevo.
+
+Según lo dicho, la hipótesis es la siguiente:
+\[O(1) = O(C) - O(C) + O(1)\] 
+La complejidad de transportar \(C\) personas es \(C \times O(1) = O(C)\) y la complejidad de transportar el nuevo cliente es \(O(1)\).
+\[O(1) = O(1)\]
+
+Por lo que la cantidad de personas que hay que trasladar es una y la complejidad de un traslado es \(O(1)\), por lo que el orden amortizado quedaria en \(O(1)\).
+
+\section*{Pregunta 5}
+
+\subsection*{(a) Demuestre que $2–SAT \in P$}
+
+Usando de fuente una resolucion del problema de 2-SAT por Aspvall, Plass y Tarjan (1979) se puede llegar a demostrar que $2-SAT \in P$, la resolucion demostrada por ellos es la siguiente:
+
+\subsubsection*{Uso de Componentes Fuertemenete Conexos:}
+Dada una instancia de 2-SAT, se crea un grafo dirigido. Por cada cláusula $C = (L_i \vee L_j)$, se crea dos aristas: $(\neg L_i \rightarrow L_j)$ y $(\neg L_j \rightarrow L_i)$.
+
+Se utiliza un algoritmo eficiente para encontrar los componentes fuertemente conexos del grafo.
+
+\subsubsection*{Verificación de Satisfacibilidad:}
+\begin{itemize}
+    \item Si encontramos componentes fuertemente conexos que contienen un literal $L$ y su negación $\neg L$, la fórmula no es satisfacible.
+    \item Si no encontramos eso, la fórmula es satisfacible.
+\end{itemize}
+
+\subsubsection*{Complejidad Temporal:}
+La construcción del grafo y la búsqueda de los componentes fuertemente conexos toman tiempo $O(n)$, donde $n$ es el número de literales en la fórmula $2$-SAT, ya que este problema se puede completar en tiempo polinomial entonces se cumple que $2-SAT \in P$.
+
+\subsection*{(b) Demuestre que $k–SAT$ es $NP–completo$, para todo $k > 2$.}
+
+\section*{Pregunta 6}
+
+\begin{lstlisting}[style=customcpp]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+struct Peticion {
+    int inicio;
+    int tamano;
+};
+
+vector<int> elegirVallas(const vector<Peticion>& peticiones) {
+    int n = peticiones.size();
+    vector<int> indices(n);
+    for (int i = 0; i < n; ++i) {indices[i] = i;}
+
+    sort(indices.begin(), indices.end(), [&](int a, int b) {
+        return (peticiones[a].inicio + peticiones[a].tamano) < 
+	(peticiones[b].inicio + peticiones[b].tamano);
+    });
+
+    vector<int> maximal;
+    int extremo= numeric_limits<int>::min();
+
+    for (int i : indices) {
+        int inicio =peticiones[i].inicio, tamano= peticiones[i].tamano;
+
+        if (inicio >= extremo) {
+            maximal.push_back(i);
+            extremo = inicio+tamano;
+        }
+    }return maximal;
+}
+\end{lstlisting}
+
+\section*{Pregunta 7}
+
+\subsection*{Demuestre que MT es una matroide}
+Un matroide se caracteriza por dos propiedades principales: la propiedad del intercambio y la propiedad del cierre bajo la inclusión.\\
+
+1. \textbf{Propiedad del Intercambio:} Dado un conjunto $F_0 \in I$ y otro conjunto $F_1 \subseteq F_0$ con $|F_0| < |F_1|$, hay algún elemento $x \in F_1 \setminus F_0$ tal que $F_0 \cup \{x\} \in I$.
+
+Esto significa que si tenemos un conjunto definitivo $F_0$ y otro conjunto $F_1$ más grande, podemos agregar una firma de función adicional de $F_1 \setminus F_0$ a $F_0$ sin perder la propiedad de ser definitivo.
+
+2. \textbf{Propiedad del Cierre Bajo la Inclusión:} Dados dos conjuntos $F_0 \in I$ y $F_1 \subseteq F_0$, entonces $F_1 \in I$.
+
+Esto significa que cualquier subconjunto de un conjunto definitivo también es definitivo.
+
+Ambas propiedades son satisfechas porque si un conjunto de firmas es definitivo, entonces cualquier subconjunto también lo será, y siempre podemos agregar firmas adicionales sin violar la propiedad de ser definitivo.
+
+\subsubsection*{Función de Costo y Subconjuntos Óptimos:}
+
+Para la matroide pesada $M_T$ con una función de peso $w$, podemos definir $w(F_0)$ como el potencial total de $F_0$, que es la suma de los potenciales individuales de todas las firmas en $F_0$.
+
+Los subconjuntos óptimos, en este caso, serían los subconjuntos definitivos con el máximo potencial total. En otras palabras, queremos encontrar el conjunto $F_0$ que maximice $w(F_0)$.
+
+Para formalizar esto, podríamos definir una función de peso $w(F_0)$ que asigna el potencial total a cada conjunto $F_0$, y luego buscar el conjunto $F_0$ que maximice $w(F_0)$.
+
+\section*{Pregunta 8}
+
+Para construir un árbol de segmentos que permita consultas de la máxima diferencia entre dos elementos en un rango específico \([i..j]\) para un arreglo dado \(A[1..n]\), puedes seguir estos pasos:
+
+\subsection*{Definición de la Estructura del Nodo del Árbol:}
+
+Cada nodo del árbol de segmentos contendrá información relevante para el rango que representa. En este caso, necesitarás almacenar la máxima diferencia en el rango representado por ese nodo.
+
+\subsection*{Caso Base (Hojas del Árbol):}
+
+Cada hoja del árbol de segmentos representará un solo elemento del arreglo. La máxima diferencia en una hoja es 0, ya que no hay otro elemento en el rango para comparar.
+
+\subsection*{Caso Recursivo (Nodos Intermedios):}
+
+Para cada nodo intermedio, la máxima diferencia en su rango se calculará combinando las máximas diferencias de sus dos hijos. Para un nodo que representa el rango \([l..r]\), donde \(l\) y \(r\) son los índices extremos del rango, el valor precalculado en ese nodo se calculará como la máxima diferencia entre el valor precalculado del hijo izquierdo y el valor precalculado del hijo derecho. La máxima diferencia en el rango \([l..r]\) se calculará como la máxima diferencia entre los elementos en el rango \([A[l]..A[r]]\).
+
+\subsection*{Construcción del Árbol Recursivamente:}
+
+Comienza construyendo las hojas del árbol, cada una representando un elemento del arreglo \(A\). Luego, construye los nodos intermedios de manera recursiva, combinando la información de sus dos hijos.
+
+
 \section*{Pregunta 9}
 
 \begin{lstlisting}[style=customcpp]
