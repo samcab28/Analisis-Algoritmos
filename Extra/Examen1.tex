@@ -1,0 +1,191 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{titlesec}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{blindtext}
+
+\title{Examen I EXTRA}
+\author{Mynell Myers Hall}
+\date{\today}
+
+\lstdefinestyle{customcpp}{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{cyan!50},
+    stringstyle=\color{green!50!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=none,
+    backgroundcolor=\color{gray!10},
+    rulecolor=\color{gray!10},
+    identifierstyle=\color{purple!40},
+}
+
+\begin{document}
+\maketitle
+
+\section*{Pregunta 1}
+
+\subsection*{(a)}
+\[
+T(n) = 3 \cdot T\left(\frac{n}{3}\right) + 5n^2 + 3n
+\]
+\[
+a = 3, \quad b = 3, \quad f(n) = 5n^2 + 3n
+\]
+Usando el Teorema Maestro:
+\[
+T(n) = \Theta(n^{\log_b a} \cdot \log^k n)
+\]
+\[
+T(n) = \Theta(n^{\log_3 3} \cdot \log^0 n)
+\]
+\[
+T(n) = \Theta(n^2)
+\]
+
+\subsection*{(b)}
+\[
+T(n) = 5 \cdot T\left(\frac{n}{4}\right) + 4n
+\]
+\[
+a = 5, \quad b = 4, \quad f(n) = 4n
+\]
+Usando el Teorema Maestro:
+\[
+T(n) = \Theta(n^{\log_b a})
+\]
+\[
+T(n) = \Theta(n^{\log_4 5})
+\]
+
+\subsection*{(c)}
+\[
+T(n) = T\left(\frac{n}{2}\right) + 2n
+\]
+\[
+a = 1, \quad b = 2, \quad f(n) = 2n
+\]
+Usando el Teorema Maestro:
+\[
+T(n) = \Theta(f(n))
+\]
+\[
+T(n) = \Theta(2n)
+\]
+\[
+T(n) = \Theta(n)
+\]
+
+\subsection*{(d)}
+\[
+T(n) = 36 \cdot T\left(\frac{n}{6}\right) + \frac{n(n-1)}{2}
+\]
+\[
+a = 36, \quad b = 6, \quad f(n) = \frac{n(n-1)}{2}
+\]
+Usando el Teorema Maestro:
+\[
+T(n) = \Theta(n^{\log_b a} \cdot \log^k n)
+\]
+\[
+T(n) = \Theta(n^{\log_6 36} \cdot \log^0 n)
+\]
+\[
+T(n) = \Theta(n^2)
+\]
+
+\section*{Pregunta 9}
+
+\begin{lstlisting}[style=customcpp]
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int minOpPalindromo(const string& C) {
+    int n = C.length();
+    vector<vector<int>> memo(n, vector<int>(n, 0));
+    for (int i = 0; i < n; ++i) {memo[i][i] = 0;}
+
+    for (int cl = 2; cl<= n;cl++) {
+        for (int i = 0; i <= n - cl; ++i) {
+            int j= i +cl -1;
+            if (C[i] == C[j]) {memo[i][j] = memo[i + 1][j - 1];
+            } else {
+                memo[i][j] = min({memo[i + 1][j], memo[i][j - 1], memo[i + 1][j - 1]}) + 1;
+            }
+        }
+    }
+    return memo[0][n - 1];
+}
+\end{lstlisting}
+
+\section*{Pregunta 10}
+
+\subsection*{Grafo Bipartito $G = (N, C)$}
+\[ N = \{1, 2, 3, 4\} \]
+\[ C = \{\{1, 3\}, \{2, 4\}, \{1, 2\}, \{3, 4\}\} \]
+
+\subsection*{Matroide $M_1 = (E, I_1)$}
+\[ E = C \]
+\[ I_1 \text{ es el conjunto de subconjuntos que forman apareamientos en } G \]
+\[
+I_1 = \{
+\{\{1, 3\}\}, \{\{2, 4\}\}, \{\{1, 2\}\}, \{\{3, 4\}\}, \\
+\{\{1, 3\}, \{2, 4\}\}, \{\{1, 3\}, \{1, 2\}\}, \{\{1, 3\}, \{3, 4\}\}, \\
+\{\{2, 4\}, \{1, 2\}\}, \{\{2, 4\}, \{3, 4\}\}, \{\{1, 2\}, \{3, 4\}\}, \\
+\{\{1, 3\}, \{2, 4\}, \{1, 2\}\}, \{\{1, 3\}, \{2, 4\}, \{3, 4\}\}, \\
+\{\{1, 2\}, \{3, 4\}, \{1, 3\}\}, \{\{1, 2\}, \{3, 4\}, \{2, 4\}\}, \\
+\{\{1, 2\}, \{3, 4\}, \{1, 2\}\}, \{\{1, 2\}, \{3, 4\}, \{1, 3\}\}, \\
+\{\{1, 2\}, \{3, 4\}, \{2, 4\}\}
+\}
+\]
+
+\subsection*{Matroide $M_2 = (E, I_2)$}
+\[ E = C \]
+\[ I_2 \text{ es el conjunto de subconjuntos que también forman apareamientos en } G \]
+\[
+I_2 = \{
+\{\{1, 3\}\}, \{\{2, 4\}\}, \{\{1, 2\}\}, \{\{3, 4\}\}, \\
+\{\{2, 4\}, \{1, 3\}\}, \{\{1, 2\}, \{3, 4\}\}
+\}
+\]
+
+\subsection*{Demostración de Propiedades}
+
+\subsection*{1. Demostracion de matroides}
+
+\subsubsection*{Matroide $M_1$}
+
+Si $A \in I_1$ y $B \subseteq A$, entonces $B \in I_1$.\\
+
+\textbf{Demostración:} Si $A$ es un apareamiento en $G$, entonces cualquier subconjunto de $A$ sigue siendo un apareamiento. Por lo tanto, $B \subseteq A$ también es un apareamiento en $G$.\\
+
+Si $A \in I_1$, $B \in I_1$ y $|A| < |B|$, entonces existe algún elemento $x$ en $B - A$ tal que $A \cup \{x\} \in I_1$.\\
+
+\textbf{Demostración:} Dado que $A$ y $B$ son dos apareamientos en $G$, podemos tomar cualquier elemento $x$ en $B - A$ y agregarlo a $A$ sin romper la propiedad de apareamiento.
+
+\subsubsection*{Matroide $M_2$}
+
+Si $A \in I_2$ y $B \subseteq A$, entonces $B \in I_2$.\\
+
+\textbf{Demostración:} Similar a la demostración de $M_1$, cualquier subconjunto de un apareamiento en $G$ sigue siendo un apareamiento. Por lo tanto, $B \subseteq A$ también es un apareamiento en $G$.\\
+
+Si $A \in I_2$, $B \in I_2$ y $|A| < |B|$, entonces existe algún elemento $x$ en $B - A$ tal que $A \cup \{x\} \in I_2$.\\
+
+\textbf{Demostración:} Dado que $A$ y $B$ son dos apareamientos en $G$, podemos tomar cualquier elemento $x$ en $B - A$ y agregarlo a $B$ sin romper la propiedad de apareamiento.
+
+
+\subsection*{3. Intersección que representa apareamientos}
+
+$M_1 \cap M_2$ consiste en los conjuntos $\{\{1, 3\}\}, \{\{2, 4\}\}, \{\{1, 2\}\}, \{\{3, 4\}\}$, que son precisamente los apareamientos de $G$.\\
+
+\textbf{Demostración:} Cualquier conjunto independiente en $M_1 \cap M_2$ es un conjunto independiente en ambos $M_1$ y $M_2$, lo que implica que es un apareamiento en $G$.
+
+\end{document}
